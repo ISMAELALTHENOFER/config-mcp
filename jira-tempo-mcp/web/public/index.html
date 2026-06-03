@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jira Tempo Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232736;
+    --border: #2d3245;
+    --text: #e1e4eb;
+    --text2: #8b90a0;
+    --accent: #4f8cff;
+    --accent2: #3b6fd4;
+    --green: #2ecc71;
+    --yellow: #f1c40f;
+    --red: #e74c3c;
+    --orange: #e67e22;
+    --purple: #9b59b6;
+    --radius: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+  .sidebar {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+  .sidebar h1 {
+    font-size: 16px;
+    padding: 0 16px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+  .sidebar a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+    transition: .15s;
+  }
+  .sidebar a:hover, .sidebar a.active {
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .sidebar a.active { border-left: 3px solid var(--accent); }
+  .main {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .main h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card h3 {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 32px;
+    font-weight: 700;
+  }
+  .stat .label {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+  .stat.green .num { color: var(--green); }
+  .stat.yellow .num { color: var(--yellow); }
+  .stat.red .num { color: var(--red); }
+  .stat.blue .num { color: var(--accent); }
+  .stat.orange .num { color: var(--orange); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+    color: var(--text2);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: var(--surface2); }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.open { background: #2ecc7133; color: var(--green); }
+  .badge.inprogress { background: #4f8cff33; color: var(--accent); }
+  .badge.done { background: #8b90a033; color: var(--text2); }
+  .badge.blocked { background: #e74c3c33; color: var(--red); }
+  .key { color: var(--accent); font-weight: 600; text-decoration: none; }
+  .key:hover { text-decoration: underline; }
+  .sub {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+  .form-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: end;
+  }
+  .form-row label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+  .form-row input, .form-row select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    min-width: 160px;
+  }
+  .form-row input:focus { outline: none; border-color: var(--accent); }
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .15s;
+  }
+  .btn:hover { background: var(--accent2); }
+  .error {
+    background: #e74c3c22;
+    border: 1px solid var(--red);
+    color: var(--red);
+    padding: 12px;
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text2);
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .mb-16 { margin-bottom: 16px; }
+  .mt-16 { margin-top: 16px; }
+  .progress-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width .3s;
+  }
+  .config-note {
+    background: var(--surface2);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-size: 13px;
+    color: var(--text2);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 768px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); padding: 12px; }
+    .sidebar h1 { display: none; }
+    .sidebar a { display: inline-block; padding: 6px 12px; font-size: 12px; }
+    .main { padding: 12px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h1>Jira Tempo</h1>
+  <a class="active" onclick="show('dashboard')">Dashboard</a>
+  <a onclick="show('tasks')">Mis Tareas</a>
+  <a onclick="show('search')">Buscar</a>
+  <a onclick="show('epic')">Epica</a>
+  <a onclick="show('project')">Proyecto</a>
+  <a onclick="show('metrics')">Metricas</a>
+  <a onclick="show('blocked')">Bloqueadas</a>
+  <a onclick="show('tempo')">Tempo Horas</a>
+  <a onclick="show('releases')">Releases</a>
+</nav>
+
+<div class="main">
+
+  <div id="section-dashboard" class="section active">
+    <h2>Dashboard</h2>
+    <div class="grid" id="dashboard-stats"></div>
+    <div class="card">
+      <h3>Mis tareas abiertas</h3>
+      <div id="dashboard-tasks"></div>
+    </div>
+  </div>
+
+  <div id="section-tasks" class="section">
+    <h2>Mis tareas</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Max resultados</label><input type="number" id="tasks-max" value="30" min="1" max="500"></div>
+        <button class="btn" onclick="loadMyTasks()">Actualizar</button>
+      </div>
+      <div id="tasks-result"></div>
+    </div>
+  </div>
+
+  <div id="section-search" class="section">
+    <h2>Busqueda JQL</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div style="flex:1"><label>JQL</label><input type="text" id="search-jql" value='project = REM ORDER BY updated DESC' style="width:100%;min-width:300px"></div>
+        <div><label>Max</label><input type="number" id="search-max" value="20"></div>
+        <button class="btn" onclick="doSearch()">Buscar</button>
+      </div>
+      <div id="search-result"></div>
+    </div>
+  </div>
+
+  <div id="section-epic" class="section">
+    <h2>Epica</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Epic Key</label><input type="text" id="epic-key" placeholder="REM-123"></div>
+        <button class="btn" onclick="loadEpic()">Ver</button>
+      </div>
+      <div id="epic-result"></div>
+    </div>
+  </div>
+
+  <div id="section-project" class="section">
+    <h2>Proyecto</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Project Key</label><input type="text" id="project-key" value="REM"></div>
+        <button class="btn" onclick="loadProject()">Ver</button>
+      </div>
+      <div id="project-result"></div>
+    </div>
+  </div>
+
+  <div id="section-metrics" class="section">
+    <h2>Metricas del proyecto</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Project Key</label><input type="text" id="metrics-key" value="REM"></div>
+        <button class="btn" onclick="loadMetrics()">Ver</button>
+      </div>
+      <div id="metrics-result"></div>
+    </div>
+  </div>
+
+  <div id="section-blocked" class="section">
+    <h2>Tareas bloqueadas</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Project Key (opcional)</label><input type="text" id="blocked-project" placeholder="REM"></div>
+        <button class="btn" onclick="loadBlocked()">Actualizar</button>
+      </div>
+      <div id="blocked-result"></div>
+    </div>
+  </div>
+
+  <div id="section-tempo" class="section">
+    <h2>Tempo - Horas</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Issue Key</label><input type="text" id="tempo-issue" placeholder="REM-123"></div>
+        <button class="btn" onclick="loadTempoIssue()">Horas de issue</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Account ID</label><input type="text" id="tempo-account" placeholder="712020:..."></div>
+        <div><label>Desde</label><input type="date" id="tempo-from"></div>
+        <div><label>Hasta</label><input type="date" id="tempo-to"></div>
+        <button class="btn" onclick="loadTempoUser()">Horas de usuario</button>
+      </div>
+      <div id="tempo-result"></div>
+    </div>
+  </div>
+
+  <div id="section-releases" class="section">
+    <h2>Releases</h2>
+    <div class="card">
+      <div class="form-row mb-16">
+        <div><label>Project Key</label><input type="text" id="release-key" value="REM"></div>
+        <button class="btn" onclick="loadReleases()">Ver</button>
+      </div>
+      <div id="release-result"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BASE = '';
+
+function $(id) { return document.getElementById(id); }
+
+function show(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  $(`section-${name}`).classList.add('active');
+  const link = Array.from(document.querySelectorAll('.sidebar a')).find(a => a.textContent.trim().toLowerCase() === name || 
+    (name === 'tasks' && a.textContent.includes('Tareas')) ||
+    (name === 'search' && a.textContent.includes('Buscar')) ||
+    (name === 'epic' && a.textContent.includes('Epica')) ||
+    (name === 'project' && a.textContent.includes('Proyecto')) ||
+    (name === 'metrics' && a.textContent.includes('Metricas')) ||
+    (name === 'blocked' && a.textContent.includes('Bloqueadas')) ||
+    (name === 'tempo' && a.textContent.includes('Tempo')) ||
+    (name === 'releases' && a.textContent.includes('Releases')));
+  if (link) {
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+  }
+}
+
+async function api(url) {
+  const res = await fetch(`${BASE}${url}`);
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}
+
+function renderError(el, msg) {
+  el.innerHTML = `<div class="error">${msg}</div>`;
+}
+
+function renderTable(issues) {
+  if (!issues || !issues.length) return '<p style="color:var(--text2)">Sin resultados</p>';
+  let html = '<table><thead><tr><th>Key</th><th>Tipo</th><th>Summary</th><th>Status</th><th>Prioridad</th><th>Actualizado</th></tr></thead><tbody>';
+  for (const i of issues) {
+    const statusClass = (i.statusCategory === 'done' ? 'done' : i.statusCategory === 'inProgress' || i.statusCategory === 'en curso' ? 'inprogress' : i.statusCategory === 'open' || i.statusCategory === 'por hacer' ? 'open' : '');
+    html += `<tr>
+      <td><a class="key" href="https://cau-tsg.atlassian.net/browse/${i.key}" target="_blank">${i.key}</a></td>
+      <td>${i.issueType || '-'}</td>
+      <td>${i.summary}${i.assignee ? `<div class="sub">${i.assignee.displayName}</div>` : ''}</td>
+      <td><span class="badge ${statusClass}">${i.status}</span></td>
+      <td>${i.priority || '-'}</td>
+      <td>${i.updated ? new Date(i.updated).toLocaleDateString() : '-'}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  return html;
+}
+
+async function loadMyTasks() {
+  const el = $('tasks-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/my-tasks?maxResults=${$('tasks-max').value}`);
+    el.innerHTML = `<p style="color:var(--text2);margin-bottom:12px">Total: ${data.total} tareas</p>${renderTable(data.issues)}`;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function doSearch() {
+  const el = $('search-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/search?jql=${encodeURIComponent($('search-jql').value)}&maxResults=${$('search-max').value}`);
+    el.innerHTML = `<p style="color:var(--text2);margin-bottom:12px">Total: ${data.total} resultados</p>${renderTable(data.issues)}`;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadEpic() {
+  const el = $('epic-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/epic-progress/${$('epic-key').value}`);
+    const pct = data.progress || 0;
+    el.innerHTML = `
+      <div class="flex-between mb-16">
+        <div><strong style="font-size:16px">${data.epic}</strong><br><span style="color:var(--text2)">${data.epicSummary}</span></div>
+        <div style="text-align:right"><strong style="font-size:24px">${pct}%</strong><br><span style="color:var(--text2)">completado</span></div>
+      </div>
+      <div class="progress-bar"><div class="fill" style="width:${pct}%"></div></div>
+      <div class="grid" style="margin-top:16px">
+        <div class="stat blue"><div class="num">${data.stories}</div><div class="label">Total historias</div></div>
+        <div class="stat green"><div class="num">${data.completed}</div><div class="label">Completadas</div></div>
+        <div class="stat orange"><div class="num">${data.hoursLogged ? Math.round(data.hoursLogged / 3600) : 0}h</div><div class="label">Horas cargadas</div></div>
+      </div>
+      <h3 style="margin:16px 0 8px;font-size:13px;color:var(--text2)">Historias</h3>
+      ${renderTable(data.storiesList || [])}
+    `;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadProject() {
+  const el = $('project-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/project/${$('project-key').value}`);
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        ${data.avatarUrl ? `<img src="${data.avatarUrl}" style="width:48px;height:48px;border-radius:8px">` : ''}
+        <div><strong style="font-size:18px">${data.name}</strong><br><span style="color:var(--text2)">${data.key}</span></div>
+        <div style="margin-left:auto;text-align:right"><span style="color:var(--text2)">Lead</span><br>${data.lead || '-'}</div>
+      </div>
+      ${data.description ? `<p style="margin-top:12px;color:var(--text2)">${data.description}</p>` : ''}
+      ${data.projectCategory ? `<p style="margin-top:8px;color:var(--text2)">Categoria: ${data.projectCategory}</p>` : ''}
+    `;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadMetrics() {
+  const el = $('metrics-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/project-metrics/${$('metrics-key').value}`);
+    el.innerHTML = `<div class="grid">
+      <div class="stat blue"><div class="num">${data.total}</div><div class="label">Total</div></div>
+      <div class="stat yellow"><div class="num">${data.open}</div><div class="label">Abiertas</div></div>
+      <div class="stat orange"><div class="num">${data.inProgress}</div><div class="label">En curso</div></div>
+      <div class="stat green"><div class="num">${data.done}</div><div class="label">Completadas</div></div>
+    </div>`;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadBlocked() {
+  const el = $('blocked-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const proj = $('blocked-project').value;
+    const url = proj ? `/api/blocked?projectKey=${proj}` : '/api/blocked';
+    const data = await api(url);
+    el.innerHTML = `<p style="color:var(--text2);margin-bottom:12px">Total bloqueadas: ${data.total}</p>${renderTable(data.issues)}`;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadTempoIssue() {
+  const el = $('tempo-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/tempo/issue-hours/${$('tempo-issue').value}`);
+    const totalH = data.totalSeconds ? Math.round(data.totalSeconds / 3600) : 0;
+    el.innerHTML = `
+      <div class="grid">
+        <div class="stat blue"><div class="num">${totalH}h</div><div class="label">Horas totales</div></div>
+        <div class="stat orange"><div class="num">${data.worklogCount}</div><div class="label">Worklogs</div></div>
+      </div>
+      <h3 style="margin:16px 0 8px;font-size:13px;color:var(--text2)">Worklogs</h3>
+      <table><thead><tr><th>Fecha</th><th>Usuario</th><th>Tiempo</th><th>Descripcion</th></tr></thead><tbody>
+        ${(data.worklogs || []).map(w => `<tr>
+          <td>${w.startDate || '-'}</td>
+          <td>${w.author?.displayName || '-'}</td>
+          <td>${w.timeSpent || '-'}</td>
+          <td>${w.description || ''}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    `;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadTempoUser() {
+  const el = $('tempo-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/tempo/user-hours?accountId=${$('tempo-account').value}&from=${$('tempo-from').value}&to=${$('tempo-to').value}`);
+    const totalH = data.totalSeconds ? Math.round(data.totalSeconds / 3600) : 0;
+    el.innerHTML = `
+      <div class="grid">
+        <div class="stat blue"><div class="num">${totalH}h</div><div class="label">Horas</div></div>
+        <div class="stat orange"><div class="num">${data.worklogCount}</div><div class="label">Worklogs</div></div>
+      </div>
+      <h3 style="margin:16px 0 8px;font-size:13px;color:var(--text2)">Worklogs</h3>
+      <table><thead><tr><th>Issue</th><th>Fecha</th><th>Tiempo</th><th>Descripcion</th></tr></thead><tbody>
+        ${(data.worklogs || []).map(w => `<tr>
+          <td>${w.issueKey || '-'}</td>
+          <td>${w.startDate || '-'}</td>
+          <td>${w.timeSpent || '-'}</td>
+          <td>${w.description || ''}</td>
+        </tr>`).join('')}
+      </tbody></table>
+    `;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadReleases() {
+  const el = $('release-result');
+  el.innerHTML = '<div class="loading">Cargando...</div>';
+  try {
+    const data = await api(`/api/releases/${$('release-key').value}`);
+    el.innerHTML = `<table><thead><tr><th>Nombre</th><th>Descripcion</th><th>Release</th><th>Fecha</th></tr></thead><tbody>
+      ${data.map(r => `<tr>
+        <td><strong>${r.name}</strong></td>
+        <td>${r.description || '-'}</td>
+        <td><span class="badge ${r.released ? 'done' : 'open'}">${r.released ? 'Liberado' : 'No liberado'}</span></td>
+        <td>${r.releaseDate || '-'}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } catch (e) { renderError(el, e.message); }
+}
+
+async function loadDashboard() {
+  const statsEl = $('dashboard-stats');
+  const tasksEl = $('dashboard-tasks');
+  statsEl.innerHTML = '<div class="loading" style="grid-column:1/-1">Cargando...</div>';
+  try {
+    const tasks = await api('/api/my-tasks?maxResults=10');
+    const totalEl = document.querySelector('.stat .num');
+    statsEl.innerHTML = `
+      <div class="stat blue"><div class="num">${tasks.total}</div><div class="label">Mis tareas</div></div>
+      <div class="stat yellow"><div class="num">${tasks.issues.filter(i => i.statusCategory === 'por hacer' || i.status === 'Abierto').length}</div><div class="label">Por hacer</div></div>
+      <div class="stat orange"><div class="num">${tasks.issues.filter(i => i.statusCategory === 'en curso' || i.status === 'En curso' || i.status === 'Desarrollo').length}</div><div class="label">En curso</div></div>
+    `;
+    tasksEl.innerHTML = tasks.total > 0 ? renderTable(tasks.issues) : '<p style="color:var(--text2)">No tenes tareas asignadas</p>';
+  } catch (e) {
+    statsEl.innerHTML = `<div class="error">${e.message}</div>`;
+    tasksEl.innerHTML = '';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  $('tempo-from').value = firstDay.toISOString().split('T')[0];
+  $('tempo-to').value = today.toISOString().split('T')[0];
+  loadDashboard();
+});
+</script>
+</body>
+</html>
