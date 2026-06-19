@@ -14,6 +14,7 @@ import {
   mapBoard,
   mapSprint,
   mapVersion,
+  mapComments,
 } from './jiraMapper.js';
 import { JiraError } from '../utils/errors.js';
 
@@ -93,6 +94,17 @@ export async function getMyTasks(maxResults = 50) {
 
 export async function getBlockedIssues(projectKey, maxResults = 50) {
   return searchJql(buildBlockedIssuesJql(projectKey), maxResults);
+}
+
+export async function getIssueComments(issueKey) {
+  try {
+    const data = await jiraGet(`/rest/api/3/issue/${issueKey}/comment`);
+    return mapComments(data);
+  } catch (error) {
+    throw new JiraError(
+      `Failed to get comments for ${issueKey}: ${error.message}`,
+    );
+  }
 }
 
 export async function getProjectMetrics(projectKey) {

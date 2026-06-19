@@ -25,6 +25,7 @@ import { handleGetTempoUserHours } from './tools/getTempoUserHours.js';
 import { handleGetTempoProjectHours } from './tools/getTempoProjectHours.js';
 import { handleGetTempoTeamHours } from './tools/getTempoTeamHours.js';
 import { handleGetTempoIssueHours } from './tools/getTempoIssueHours.js';
+import { handleGetIssueComments } from './tools/getIssueComments.js';
 
 const TOOL_HANDLERS = {
   search_jql: handleSearchJql,
@@ -43,6 +44,7 @@ const TOOL_HANDLERS = {
   get_tempo_project_hours: handleGetTempoProjectHours,
   get_tempo_team_hours: handleGetTempoTeamHours,
   get_tempo_issue_hours: handleGetTempoIssueHours,
+  get_issue_comments: handleGetIssueComments,
 };
 
 const rateLimitMiddleware = createRateLimitMiddleware();

@@ -121,6 +121,27 @@ export function mapSprint(raw) {
   };
 }
 
+export function mapComments(raw) {
+  return {
+    total: raw.total || 0,
+    maxResults: raw.maxResults || 0,
+    startAt: raw.startAt || 0,
+    comments: (raw.comments || []).map((c) => ({
+      id: c.id,
+      author: c.author
+        ? {
+            accountId: c.author.accountId,
+            displayName: c.author.displayName,
+            emailAddress: c.author.emailAddress,
+          }
+        : null,
+      body: c.body || null,
+      created: c.created || null,
+      updated: c.updated || null,
+    })),
+  };
+}
+
 export function mapVersion(raw) {
   return {
     id: raw.id,
