@@ -209,6 +209,18 @@ export const GET_TEMPO_ISSUE_HOURS_SCHEMA = {
   },
 };
 
+export const GET_ISSUE_COMMENTS_SCHEMA = {
+  name: 'get_issue_comments',
+  description: 'Get all comments from a Jira issue (read-only)',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      issueKey: { type: 'string', description: 'Issue key (e.g. REM-12934)' },
+    },
+    required: ['issueKey'],
+  },
+};
+
 export const ALL_TOOLS = [
   SEARCH_JQL_SCHEMA,
   GET_ISSUE_SCHEMA,
@@ -221,6 +233,7 @@ export const ALL_TOOLS = [
   GET_BLOCKED_ISSUES_SCHEMA,
   GET_PROJECT_METRICS_SCHEMA,
   GET_EPIC_PROGRESS_SCHEMA,
+  GET_ISSUE_COMMENTS_SCHEMA,
   GET_TEMPO_WORKLOGS_SCHEMA,
   GET_TEMPO_USER_HOURS_SCHEMA,
   GET_TEMPO_PROJECT_HOURS_SCHEMA,
