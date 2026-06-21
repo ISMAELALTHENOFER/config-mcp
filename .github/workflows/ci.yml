@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [jira-tempo, gitlab]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies (${{ matrix.package }})
+        working-directory: packages/${{ matrix.package }}
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Run tests
+        working-directory: packages/${{ matrix.package }}
+        run: npm test
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL || 'https://test.atlassian.net' }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL || 'test@test.com' }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN || 'test' }}
+          TEMPO_API_TOKEN: ${{ secrets.TEMPO_API_TOKEN || 'test' }}
+          GITLAB_BASE_URL: ${{ secrets.GITLAB_BASE_URL || 'https://gitlab.com' }}
+          GITLAB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITLAB_PERSONAL_ACCESS_TOKEN || 'test' }}
