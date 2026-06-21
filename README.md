@@ -2,14 +2,20 @@
 
 Repositorio central de servidores MCP (Model Context Protocol) para integrar asistentes AI con herramientas del ecosistema TSG.
 
-Cada subdirectorio es un MCP server independiente que expone herramientas de solo lectura para consultar datos desde Jira, Tempo y otros sistemas.
+Cada servidor es un package independiente bajo `packages/`, con herramientas de solo lectura para consultar datos desde Jira, Tempo, GitLab y otros sistemas.
 
 ## Servidores
 
 | Proyecto | Descripción |
-|---|---|---|
-| [jira-tempo-mcp](./jira-tempo-mcp/) | Consultas a Jira (issues, proyectos, epics, sprints, boards, JQL) y Tempo (worklogs, horas) |
-| [gitlab-mcp](./gitlab-mcp/) | Consultas a GitLab (merge requests, proyectos, ramas, archivos, pipelines) |
+|---|---|
+| [jira-tempo](./packages/jira-tempo/) | Consultas a Jira (issues, proyectos, epics, sprints, boards, JQL) y Tempo (worklogs, horas) |
+| [gitlab](./packages/gitlab/) | Consultas a GitLab (merge requests, proyectos, ramas, archivos, pipelines) |
+
+## Librerías compartidas
+
+| Package | Descripción |
+|---|---|
+| [mcp-core](./packages/mcp-core/) | Código compartido: rate limiting, sanitización, seguridad, errores base |
 
 ## Uso
 
@@ -21,7 +27,7 @@ La configuración general en OpenCode sigue este patrón:
 {
   "mcp": {
     "<nombre-servidor>": {
-      "command": ["node", "ruta/completa/src/server.js"],
+      "command": ["node", "ruta/completa/packages/<server>/src/server.js"],
       "enabled": true,
       "type": "local",
       "env": {
@@ -34,7 +40,7 @@ La configuración general en OpenCode sigue este patrón:
 
 ## Especificaciones
 
-- [MCP Jira + Tempo Spec](./MCP_JIRA_TEMPO_SPEC.md) — documento de diseño y especificación técnica del servidor Jira/Tempo
+- [Jira + Tempo Spec](./docs/jira-tempo-spec.md) — documento de diseño y especificación técnica del servidor Jira/Tempo
 
 ## Principios
 

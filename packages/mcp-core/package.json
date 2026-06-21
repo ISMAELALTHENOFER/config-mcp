@@ -1,0 +1,12 @@
+{
+  "name": "@config-mcp/mcp-core",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "dependencies": {
+    "bottleneck": "^2.19.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
