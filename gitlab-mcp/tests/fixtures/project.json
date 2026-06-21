@@ -1,0 +1,33 @@
+{
+  "id": 6789,
+  "description": "Main application repository",
+  "name": "project",
+  "name_with_namespace": "group / project",
+  "path": "project",
+  "path_with_namespace": "group/project",
+  "created_at": "2024-01-15T10:00:00.000Z",
+  "default_branch": "main",
+  "tag_list": [],
+  "topics": [],
+  "visibility": "public",
+  "web_url": "https://gitlab.example.com/group/project",
+  "avatar_url": null,
+  "forks_count": 5,
+  "star_count": 12,
+  "open_issues_count": 3,
+  "merge_requests_enabled": true,
+  "issues_enabled": true,
+  "wiki_enabled": true,
+  "snippets_enabled": false,
+  "container_registry_enabled": true,
+  "shared_runners_enabled": true,
+  "lfs_enabled": true,
+  "archived": false,
+  "last_activity_at": "2025-06-15T14:30:00.000Z",
+  "namespace": {
+    "id": 50,
+    "name": "group",
+    "path": "group",
+    "kind": "group"
+  }
+}

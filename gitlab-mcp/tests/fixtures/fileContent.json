@@ -1,0 +1,7 @@
+{
+  "content": "const express = require('express');\nconst app = express();\n\napp.get('/', (req, res) => {\n  res.send('Hello World!');\n});\n\nmodule.exports = app;\n",
+  "filePath": "src/index.js",
+  "size": 128,
+  "encoding": "base64",
+  "ref": "main"
+}
