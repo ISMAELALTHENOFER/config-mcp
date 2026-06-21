@@ -1,0 +1,47 @@
+[
+  {
+    "name": "main",
+    "commit": {
+      "id": "abc123def456",
+      "short_id": "abc123d",
+      "title": "Add initial project structure",
+      "author_name": "Jane Doe",
+      "author_email": "jane@example.com",
+      "created_at": "2025-05-01T10:00:00.000Z",
+      "message": "Add initial project structure\n\nSet up the project with basic files"
+    },
+    "merged": false,
+    "protected": true,
+    "default": true
+  },
+  {
+    "name": "develop",
+    "commit": {
+      "id": "def789ghi012",
+      "short_id": "def789g",
+      "title": "Add CI pipeline configuration",
+      "author_name": "John Smith",
+      "author_email": "john@example.com",
+      "created_at": "2025-05-15T14:00:00.000Z",
+      "message": "Add CI pipeline configuration"
+    },
+    "merged": false,
+    "protected": true,
+    "default": false
+  },
+  {
+    "name": "feature/auth",
+    "commit": {
+      "id": "abc123def456",
+      "short_id": "abc123d",
+      "title": "Add user authentication module",
+      "author_name": "Jane Doe",
+      "author_email": "jane@example.com",
+      "created_at": "2025-06-01T10:00:00.000Z",
+      "message": "Add user authentication module"
+    },
+    "merged": false,
+    "protected": false,
+    "default": false
+  }
+]

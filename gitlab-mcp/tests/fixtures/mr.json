@@ -1,0 +1,42 @@
+{
+  "id": 12345,
+  "iid": 42,
+  "project_id": 6789,
+  "title": "Add user authentication module",
+  "description": "Implements JWT-based authentication\n\n- Login endpoint\n- Token refresh\n- Password reset",
+  "state": "opened",
+  "created_at": "2025-06-01T10:00:00.000Z",
+  "updated_at": "2025-06-15T14:30:00.000Z",
+  "merged_by": null,
+  "merged_at": null,
+  "closed_by": null,
+  "closed_at": null,
+  "target_branch": "main",
+  "source_branch": "feature/auth",
+  "author": {
+    "id": 100,
+    "name": "Jane Doe",
+    "username": "janedoe"
+  },
+  "assignees": [],
+  "reviewers": [],
+  "source_project_id": 6789,
+  "target_project_id": 6789,
+  "labels": ["backend", "security"],
+  "work_in_progress": false,
+  "merge_when_pipeline_succeeds": false,
+  "merge_status": "can_be_merged",
+  "sha": "abc123def456",
+  "merge_commit_sha": null,
+  "squash_commit_sha": null,
+  "user_notes_count": 3,
+  "discussion_locked": null,
+  "should_remove_source_branch": null,
+  "force_remove_source_branch": false,
+  "web_url": "https://gitlab.example.com/group/project/-/merge_requests/42",
+  "references": {
+    "short": "!42",
+    "relative": "group/project!42",
+    "full": "group/project!42"
+  }
+}

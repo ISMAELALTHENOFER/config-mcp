@@ -1,0 +1,44 @@
+[
+  {
+    "old_path": "src/auth/login.js",
+    "new_path": "src/auth/login.js",
+    "old_oid": "abc123",
+    "new_oid": "def456",
+    "a_mode": "100644",
+    "b_mode": "100644",
+    "new_file": false,
+    "renamed_file": false,
+    "deleted_file": false,
+    "diff": "--- a/src/auth/login.js\n+++ b/src/auth/login.js\n@@ -1,5 +1,8 @@\n function login(username, password) {\n-  // TODO\n+  const user = findUser(username);\n+  if (!user) throw new Error('User not found');\n+  const valid = bcrypt.compare(password, user.hash);\n+  if (!valid) throw new Error('Invalid password');\n+  return generateToken(user);\n }",
+    "additions": 5,
+    "deletions": 1
+  },
+  {
+    "old_path": "src/utils/helpers.js",
+    "new_path": "src/utils/helpers.js",
+    "old_oid": "ghi789",
+    "new_oid": "jkl012",
+    "a_mode": "100644",
+    "b_mode": "100644",
+    "new_file": true,
+    "renamed_file": false,
+    "deleted_file": false,
+    "diff": "--- /dev/null\n+++ b/src/utils/helpers.js\n@@ -0,0 +1,3 @@\n+export function generateToken(user) {\n+  return jwt.sign({ id: user.id }, SECRET, { expiresIn: '1h' });\n+}",
+    "additions": 3,
+    "deletions": 0
+  },
+  {
+    "old_path": "src/legacy/auth_old.js",
+    "new_path": "src/legacy/auth_old.js",
+    "old_oid": "mno456",
+    "new_oid": "0000000",
+    "a_mode": "100644",
+    "b_mode": "0",
+    "new_file": false,
+    "renamed_file": false,
+    "deleted_file": true,
+    "diff": "--- a/src/legacy/auth_old.js\n+++ /dev/null\n@@ -1,15 +0,0 @@\n-// Legacy auth - no longer used\n-function oldLogin(user, pass) {\n-  return user === 'admin' && pass === 'password';\n-}",
+    "additions": 0,
+    "deletions": 15
+  }
+]
