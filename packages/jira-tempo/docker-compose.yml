@@ -1,7 +1,7 @@
 services:
-  jira-tempo-mcp:
+  jira-tempo:
     build: .
-    container_name: jira-tempo-mcp
+    container_name: jira-tempo
     ports:
       - "${MCP_PORT:-3000}:3000"
     env_file:

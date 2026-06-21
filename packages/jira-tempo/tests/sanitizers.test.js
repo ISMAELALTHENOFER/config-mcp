@@ -3,7 +3,7 @@ import {
   sanitizeHeaders,
   sanitizeUrl,
   sanitizeConfig,
-} from '../src/utils/sanitizers.js';
+} from '@config-mcp/mcp-core';
 
 describe('sanitizers', () => {
   describe('sanitizeHeaders', () => {

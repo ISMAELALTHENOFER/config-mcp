@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { env } from '../config/env.js';
-import { limiter } from '../middleware/rateLimit.js';
+import { limiter } from '@config-mcp/mcp-core';
 import { logger } from '../utils/logger.js';
 
 const jiraAxios = axios.create({

@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { env } from '../src/config/env.js';
 import { logger } from '../src/utils/logger.js';
 import * as jira from '../src/jira/jiraService.js';
 import * as tempo from '../src/tempo/tempoService.js';
@@ -74,7 +73,9 @@ app.get('/api/epic-progress/:epicKey', wrap(async (req) => {
   try {
     const hours = await tempo.getIssueHours(req.params.epicKey);
     hoursLogged = hours.totalSeconds;
-  } catch {}
+  } catch {
+    // horas de Tempo no disponibles — se omite
+  }
 
   return {
     epic: req.params.epicKey,

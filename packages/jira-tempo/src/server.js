@@ -7,7 +7,7 @@ import {
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { ALL_TOOLS } from './schemas/toolSchemas.js';
-import { createRateLimitMiddleware } from './middleware/rateLimit.js';
+import { createRateLimitMiddleware } from '@config-mcp/mcp-core';
 
 import { handleSearchJql } from './tools/searchJql.js';
 import { handleGetIssue } from './tools/getIssue.js';
@@ -47,11 +47,11 @@ const TOOL_HANDLERS = {
   get_issue_comments: handleGetIssueComments,
 };
 
-const rateLimitMiddleware = createRateLimitMiddleware();
+const rateLimitMiddleware = createRateLimitMiddleware(200);
 
 const server = new Server(
   {
-    name: 'jira-tempo-mcp',
+    name: 'jira-tempo',
     version: '1.0.0',
   },
   {
@@ -118,7 +118,7 @@ async function main() {
   try {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    logger.info('Jira Tempo MCP Server running', {
+    logger.info('Jira Tempo Server running', {
       port: env.MCP_PORT,
       level: env.MCP_LOG_LEVEL,
     });

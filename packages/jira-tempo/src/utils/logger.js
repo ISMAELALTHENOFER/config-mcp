@@ -7,6 +7,6 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json(),
   ),
-  defaultMeta: { service: 'jira-tempo-mcp' },
+  defaultMeta: { service: 'jira-tempo' },
   transports: [new winston.transports.Console()],
 });

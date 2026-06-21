@@ -1,5 +1,5 @@
 {
-  "name": "jira-tempo-mcp",
+  "name": "@config-mcp/jira-tempo",
   "version": "1.0.0",
   "description": "MCP Server for Jira and Tempo integration",
   "type": "module",
@@ -20,6 +20,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
     "axios": "^1.7.9",
+    "@config-mcp/mcp-core": "file:../../packages/mcp-core",
     "bottleneck": "^2.19.5",
     "dotenv": "^16.4.7",
     "express": "^5.2.1",
