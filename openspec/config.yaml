@@ -5,7 +5,7 @@ context: |
   Monorepo of MCP (Model Context Protocol) servers exposing read-only tools
   for AI assistants to query business systems (Jira, Tempo, GitLab, etc.).
   Stack: Node.js 22+, JavaScript ESM, @modelcontextprotocol/sdk, Express, Zod.
-  One server exists (jira-tempo-mcp/). Next up: gitlab-mcp/.
+  Two servers exist under packages/ (jira-tempo/, gitlab/). Shared code in packages/mcp-core/.
   Each server is an independent package in its own subdirectory (no npm workspaces).
 
 rules:
@@ -23,10 +23,10 @@ rules:
   apply:
     - Follow existing code patterns
     tdd: true
-    test_command: "cd {server-dir} && node --experimental-vm-modules node_modules/jest/bin/jest.js --forceExit --detectOpenHandles"
+    test_command: "cd packages/{server-dir} && node --experimental-vm-modules node_modules/jest/bin/jest.js --forceExit --detectOpenHandles"
   verify:
-    test_command: "cd {server-dir} && node --experimental-vm-modules node_modules/jest/bin/jest.js --forceExit --detectOpenHandles"
-    build_command: "cd {server-dir} && node --check src/server.js"
+    test_command: "cd packages/{server-dir} && node --experimental-vm-modules node_modules/jest/bin/jest.js --forceExit --detectOpenHandles"
+    build_command: "cd packages/{server-dir} && node --check src/server.js"
     coverage_threshold: 0
   archive:
     - Warn before merging destructive deltas

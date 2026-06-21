@@ -1,0 +1,17 @@
+{
+  "name": "@config-mcp/root",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint packages/",
+    "lint:fix": "eslint packages/ --fix",
+    "format": "prettier --write \"packages/**/*.js\"",
+    "format:check": "prettier --check \"packages/**/*.js\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "eslint": "^9.24.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3"
+  }
+}
