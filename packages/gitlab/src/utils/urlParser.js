@@ -1,4 +1,4 @@
-import { ValidationError } from './errors.js';
+import { ValidationError } from '@config-mcp/mcp-core';
 
 /**
  * Parse a GitLab merge request URL into project path and MR IID.

@@ -30,11 +30,31 @@ jest.unstable_mockModule('../../../src/config/env.js', () => ({
   },
 }));
 
-jest.unstable_mockModule('../../../src/middleware/rateLimit.js', () => ({
-  limiter: {
-    schedule: jest.fn((fn) => fn()),
-  },
-}));
+jest.unstable_mockModule('@config-mcp/mcp-core', () => {
+  const AppError = class AppError extends Error {
+    constructor(message, statusCode = 500, code) {
+      super(message);
+      this.name = 'AppError';
+      this.statusCode = statusCode;
+      this.code = code;
+    }
+  };
+  return {
+    limiter: {
+      schedule: jest.fn((fn) => fn()),
+    },
+    AppError,
+    ValidationError: class ValidationError extends AppError {
+      constructor(message) {
+        super(message, 400, 'VALIDATION_ERROR');
+        this.name = 'ValidationError';
+      }
+    },
+    sanitizeHeaders: jest.fn((h) => h),
+    sanitizeResponse: jest.fn((d) => d),
+    sanitizeForLog: jest.fn((d) => d),
+  };
+});
 
 const { get, getAll } = await import('../../../src/gitlab/gitlabClient.js');
 const { GitlabError } = await import('../../../src/utils/errors.js');

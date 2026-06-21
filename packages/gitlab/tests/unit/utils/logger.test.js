@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, jest } from '@jest/globals';
+import { describe, it, expect, jest } from '@jest/globals';
 import winston from 'winston';
 
 jest.unstable_mockModule('../../../src/config/env.js', () => ({
@@ -10,10 +10,10 @@ jest.unstable_mockModule('../../../src/config/env.js', () => ({
 const { logger } = await import('../../../src/utils/logger.js');
 
 describe('utils/logger', () => {
-  it('should create a logger with service name "gitlab-mcp"', () => {
+  it('should create a logger with service name "gitlab"', () => {
     expect(logger).toBeDefined();
     expect(logger.level).toBe('debug');
-    expect(logger.defaultMeta).toEqual({ service: 'gitlab-mcp' });
+    expect(logger.defaultMeta).toEqual({ service: 'gitlab' });
   });
 
   it('should have info, warn, error, debug methods', () => {

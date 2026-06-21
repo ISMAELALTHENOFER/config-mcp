@@ -1,7 +1,7 @@
 services:
-  gitlab-mcp:
+  gitlab:
     build: .
-    container_name: gitlab-mcp
+    container_name: gitlab
     ports:
       - "${MCP_PORT:-3000}:3000"
     env_file:

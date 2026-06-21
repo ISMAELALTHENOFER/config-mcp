@@ -6,7 +6,6 @@ const mockGitlabService = {
 
 jest.unstable_mockModule('../../../src/gitlab/gitlabService.js', () => mockGitlabService);
 
-const { ValidationError } = await import('../../../src/utils/errors.js');
 const { handleGetMr } = await import('../../../src/tools/getMr.js');
 
 describe('tools/getMr', () => {

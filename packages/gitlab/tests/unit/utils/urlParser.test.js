@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import { parseMrUrl, encodeProjectPath } from '../../../src/utils/urlParser.js';
-import { ValidationError } from '../../../src/utils/errors.js';
+import { ValidationError } from '@config-mcp/mcp-core';
 
 describe('utils/urlParser', () => {
   describe('parseMrUrl', () => {

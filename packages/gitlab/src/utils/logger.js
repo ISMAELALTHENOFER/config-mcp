@@ -7,6 +7,6 @@ export const logger = winston.createLogger({
     winston.format.timestamp(),
     winston.format.json(),
   ),
-  defaultMeta: { service: 'gitlab-mcp' },
+  defaultMeta: { service: 'gitlab' },
   transports: [new winston.transports.Console()],
 });

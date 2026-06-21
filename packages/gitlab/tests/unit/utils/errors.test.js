@@ -1,4 +1,5 @@
-import { AppError, GitlabError, ValidationError } from '../../../src/utils/errors.js';
+import { AppError, ValidationError } from '@config-mcp/mcp-core';
+import { GitlabError } from '../../../src/utils/errors.js';
 
 describe('utils/errors', () => {
   describe('AppError', () => {

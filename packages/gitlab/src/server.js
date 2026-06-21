@@ -7,7 +7,7 @@ import {
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { ALL_TOOLS } from './schemas/toolSchemas.js';
-import { createRateLimitMiddleware } from './middleware/rateLimit.js';
+import { createRateLimitMiddleware } from '@config-mcp/mcp-core';
 
 import { handleGetMr } from './tools/getMr.js';
 import { handleGetMrDiffs } from './tools/getMrDiffs.js';
@@ -31,11 +31,11 @@ const TOOL_HANDLERS = {
   get_file_content: handleGetFileContent,
 };
 
-const rateLimitMiddleware = createRateLimitMiddleware();
+const rateLimitMiddleware = createRateLimitMiddleware(100);
 
 const server = new Server(
   {
-    name: 'gitlab-mcp',
+    name: 'gitlab',
     version: '1.0.0',
   },
   {
@@ -102,7 +102,7 @@ async function main() {
   try {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    logger.info('GitLab MCP Server running', {
+    logger.info('GitLab Server running', {
       port: env.MCP_PORT,
       level: env.MCP_LOG_LEVEL,
     });

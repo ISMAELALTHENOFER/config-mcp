@@ -5,7 +5,7 @@ let registeredListHandler = null;
 let registeredCallToolHandler = null;
 
 jest.unstable_mockModule('@modelcontextprotocol/sdk/server/index.js', () => ({
-  Server: jest.fn().mockImplementation((info, caps) => ({
+  Server: jest.fn().mockImplementation((_info, _caps) => ({
     setRequestHandler: jest.fn((schema, handler) => {
       // Identify handler by schema description (we check in tests)
       if (schema === 'ListToolsRequestSchema') {
@@ -35,7 +35,7 @@ jest.unstable_mockModule('../../src/utils/logger.js', () => ({
   logger: { info: jest.fn(), error: jest.fn(), debug: jest.fn() },
 }));
 
-jest.unstable_mockModule('../../src/middleware/rateLimit.js', () => ({
+jest.unstable_mockModule('@config-mcp/mcp-core', () => ({
   createRateLimitMiddleware: jest.fn(() => ({
     name: 'rateLimit',
     handler: jest.fn((_req, next) => next()),
@@ -59,8 +59,6 @@ jest.unstable_mockModule('../../src/schemas/toolSchemas.js', () => {
     ALL_TOOLS: TOOLS,
   };
 });
-
-const mockHandlerFns = {};
 
 jest.unstable_mockModule('../../src/tools/getMr.js', () => ({
   handleGetMr: jest.fn().mockResolvedValue({ content: [{ type: 'text', text: 'mock-mr' }] }),
@@ -104,7 +102,7 @@ const serverConnectedCalled = serverInstance.connect.mock.calls.length > 0;
 describe('Server construction', () => {
   it('should create Server with correct name and version', () => {
     expect(serverConstructorCall).toEqual([
-      { name: 'gitlab-mcp', version: '1.0.0' },
+      { name: 'gitlab', version: '1.0.0' },
       { capabilities: { tools: {} } },
     ]);
   });

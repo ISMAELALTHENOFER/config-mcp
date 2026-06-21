@@ -1,12 +1,7 @@
 import { describe, it, expect, jest } from '@jest/globals';
-import { createRateLimitMiddleware, limiter } from '../../../src/middleware/rateLimit.js';
+import { createRateLimitMiddleware } from '@config-mcp/mcp-core';
 
 describe('middleware/rateLimit', () => {
-  it('should export a limiter instance', () => {
-    expect(limiter).toBeDefined();
-    expect(typeof limiter.schedule).toBe('function');
-  });
-
   it('should create a middleware object with name and handler', () => {
     const middleware = createRateLimitMiddleware();
     expect(middleware).toHaveProperty('name', 'rateLimit');
