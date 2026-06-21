@@ -7,8 +7,9 @@ Cada subdirectorio es un MCP server independiente que expone herramientas de sol
 ## Servidores
 
 | Proyecto | Descripción |
-|---|---|
+|---|---|---|
 | [jira-tempo-mcp](./jira-tempo-mcp/) | Consultas a Jira (issues, proyectos, epics, sprints, boards, JQL) y Tempo (worklogs, horas) |
+| [gitlab-mcp](./gitlab-mcp/) | Consultas a GitLab (merge requests, proyectos, ramas, archivos, pipelines) |
 
 ## Uso
 
