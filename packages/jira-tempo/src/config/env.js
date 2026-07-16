@@ -1,7 +1,13 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Cargar .env desde la raíz del monorepo
+dotenv.config({ path: resolve(__dirname, '../../../../.env') });
 
 const envSchema = z.object({
   JIRA_BASE_URL: z.string().url(),

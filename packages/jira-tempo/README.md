@@ -6,7 +6,7 @@ MCP server que expone herramientas de solo lectura para Jira y Tempo. Diseñado 
 
 ```bash
 npm install
-cp .env.example .env
+cp ../../.env.example .env
 # Editar .env con credenciales
 npm start
 ```
@@ -43,19 +43,15 @@ Todas las tools son **solo lectura** — consultan datos sin modificar nada en J
 {
   "mcp": {
     "jira-tempo": {
-      "command": ["node", "D:\\ruta\\completa\\jira-tempo-mcp\\src\\server.js"],
+      "command": ["node", "ruta/completa/config-mcp/packages/jira-tempo/src/server.js"],
       "enabled": true,
-      "type": "local",
-      "env": {
-        "JIRA_BASE_URL": "https://tu-dominio.atlassian.net",
-        "JIRA_EMAIL": "tu-email@example.com",
-        "JIRA_API_TOKEN": "tu-token",
-        "TEMPO_API_TOKEN": "tu-tempo-token"
-      }
+      "type": "local"
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de OpenCode.
 
 ### Claude Desktop / Claude Code
 
@@ -64,17 +60,13 @@ Todas las tools son **solo lectura** — consultan datos sin modificar nada en J
   "mcpServers": {
     "jira-tempo": {
       "command": "node",
-      "args": ["ruta/completa/jira-tempo-mcp/src/server.js"],
-      "env": {
-        "JIRA_BASE_URL": "https://tu-dominio.atlassian.net",
-        "JIRA_EMAIL": "tu-email@example.com",
-        "JIRA_API_TOKEN": "tu-token",
-        "TEMPO_API_TOKEN": "tu-tempo-token"
-      }
+      "args": ["ruta/completa/config-mcp/packages/jira-tempo/src/server.js"]
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de Claude Desktop.
 
 ### Cursor
 
@@ -83,17 +75,13 @@ Todas las tools son **solo lectura** — consultan datos sin modificar nada en J
   "mcpServers": {
     "jira-tempo": {
       "command": "node",
-      "args": ["ruta/completa/jira-tempo-mcp/src/server.js"],
-      "env": {
-        "JIRA_BASE_URL": "https://tu-dominio.atlassian.net",
-        "JIRA_EMAIL": "tu-email@example.com",
-        "JIRA_API_TOKEN": "tu-token",
-        "TEMPO_API_TOKEN": "tu-tempo-token"
-      }
+      "args": ["ruta/completa/config-mcp/packages/jira-tempo/src/server.js"]
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de Cursor.
 
 ### Windsurf
 
@@ -102,17 +90,13 @@ Todas las tools son **solo lectura** — consultan datos sin modificar nada en J
   "mcpServers": {
     "jira-tempo": {
       "command": "node",
-      "args": ["ruta/completa/jira-tempo-mcp/src/server.js"],
-      "env": {
-        "JIRA_BASE_URL": "https://tu-dominio.atlassian.net",
-        "JIRA_EMAIL": "tu-email@example.com",
-        "JIRA_API_TOKEN": "tu-token",
-        "TEMPO_API_TOKEN": "tu-tempo-token"
-      }
+      "args": ["ruta/completa/config-mcp/packages/jira-tempo/src/server.js"]
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de Windsurf.
 
 ## Arquitectura
 
