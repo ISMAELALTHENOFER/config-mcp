@@ -3,9 +3,10 @@ schema: spec-driven
 
 context: |
   Monorepo of MCP (Model Context Protocol) servers exposing read-only tools
-  for AI assistants to query business systems (Jira, Tempo, GitLab, etc.).
+  for AI assistants to query business systems (Jira, Tempo, GitLab, Oracle, etc.).
   Stack: Node.js 22+, JavaScript ESM, @modelcontextprotocol/sdk, Express, Zod.
-  Two servers exist under packages/ (jira-tempo/, gitlab/). Shared code in packages/mcp-core/.
+  Servers: packages/jira-tempo/, packages/gitlab/, packages/oracle-db/.
+  Platform code in packages/mcp-core/. Scaffold template in packages/_template/.
   Each server is an independent package in its own subdirectory (no npm workspaces).
 
 rules:

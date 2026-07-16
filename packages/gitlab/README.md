@@ -6,7 +6,7 @@ MCP server que expone herramientas de **solo lectura** para GitLab. Diseñado pa
 
 ```bash
 npm install
-cp .env.example .env
+cp ../../.env.example .env
 # Editar .env con credenciales de GitLab
 npm start
 ```
@@ -216,17 +216,15 @@ Obtene README.md del proyecto group/subgroup/project
 {
   "mcp": {
     "gitlab": {
-      "command": ["node", "D:\\ruta\\completa\\gitlab-mcp\\src\\server.js"],
+      "command": ["node", "ruta/completa/config-mcp/packages/gitlab/src/server.js"],
       "enabled": true,
-      "type": "local",
-      "env": {
-        "GITLAB_BASE_URL": "https://gitlab.tsgroup.com.ar",
-        "GITLAB_PERSONAL_ACCESS_TOKEN": "tu-token-personal"
-      }
+      "type": "local"
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de OpenCode.
 
 ### Claude Desktop / Claude Code
 
@@ -235,15 +233,13 @@ Obtene README.md del proyecto group/subgroup/project
   "mcpServers": {
     "gitlab": {
       "command": "node",
-      "args": ["ruta/completa/gitlab-mcp/src/server.js"],
-      "env": {
-        "GITLAB_BASE_URL": "https://gitlab.tsgroup.com.ar",
-        "GITLAB_PERSONAL_ACCESS_TOKEN": "tu-token-personal"
-      }
+      "args": ["ruta/completa/config-mcp/packages/gitlab/src/server.js"]
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de Claude Desktop.
 
 ### Cursor
 
@@ -252,15 +248,13 @@ Obtene README.md del proyecto group/subgroup/project
   "mcpServers": {
     "gitlab": {
       "command": "node",
-      "args": ["ruta/completa/gitlab-mcp/src/server.js"],
-      "env": {
-        "GITLAB_BASE_URL": "https://gitlab.tsgroup.com.ar",
-        "GITLAB_PERSONAL_ACCESS_TOKEN": "tu-token-personal"
-      }
+      "args": ["ruta/completa/config-mcp/packages/gitlab/src/server.js"]
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de Cursor.
 
 ### Windsurf
 
@@ -269,15 +263,13 @@ Obtene README.md del proyecto group/subgroup/project
   "mcpServers": {
     "gitlab": {
       "command": "node",
-      "args": ["ruta/completa/gitlab-mcp/src/server.js"],
-      "env": {
-        "GITLAB_BASE_URL": "https://gitlab.tsgroup.com.ar",
-        "GITLAB_PERSONAL_ACCESS_TOKEN": "tu-token-personal"
-      }
+      "args": ["ruta/completa/config-mcp/packages/gitlab/src/server.js"]
     }
   }
 }
 ```
+
+> Las variables de entorno se cargan desde el .env raiz del monorepo. No es necesario incluirlas en la configuracion de Windsurf.
 
 ## Arquitectura
 

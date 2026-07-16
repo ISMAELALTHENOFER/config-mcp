@@ -89,50 +89,42 @@ GitLab MCP Server
 # Estructura del Proyecto
 
 ```text
-packages/gitlab/
-
-├── src/
+config-mcp/
+├── .env                          # Variables centralizadas (raíz del monorepo)
+├── .env.example                  # Template de variables
 │
-├── config/
-│   └── env.js
-│
-├── gitlab/
-│   ├── gitlabClient.js
-│   ├── gitlabService.js
-│   └── gitlabMapper.js
-│
-├── tools/
-│   ├── getMr.js
-│   ├── getMrDiffs.js
-│   ├── getMrComments.js
-│   ├── getMrApprovals.js
-│   ├── getMrPipelines.js
-│   ├── listProjectMrs.js
-│   ├── getProject.js
-│   ├── listBranches.js
-│   └── getFileContent.js
-│
-├── middleware/
-│   ├── rateLimit.js     (vía @config-mcp/mcp-core)
-│   └── validation.js
-│
-├── schemas/
-│   └── toolSchemas.js
-│
-├── utils/
-│   ├── logger.js
-│   ├── errors.js
-│   └── urlParser.js
-│
-├── tests/
-│
-├── server.js
-│
-├── .env
-├── .env.example
-├── .gitignore
-├── package.json
-└── README.md
+└── packages/gitlab/
+    ├── src/
+    │   ├── server.js             # Entry point — registra tools y handlers MCP SDK
+    │   ├── config/
+    │   │   └── env.js            # Carga .env raíz y valida con Zod
+    │   ├── gitlab/
+    │   │   ├── gitlabClient.js   # Cliente HTTP con auth PRIVATE-TOKEN
+    │   │   ├── gitlabMapper.js   # Transforma respuestas API a objetos planos
+    │   │   └── gitlabService.js  # Lógica de negocio, orquesta llamadas + mappers
+    │   ├── middleware/
+    │   │   ├── rateLimit.js      # Bottleneck (vía @config-mcp/mcp-core)
+    │   │   └── validation.js     # Validación con Zod
+    │   ├── schemas/
+    │   │   └── toolSchemas.js    # Schemas y registro central de tools
+    │   ├── tools/
+    │   │   ├── getMr.js
+    │   │   ├── getMrDiffs.js
+    │   │   ├── getMrComments.js
+    │   │   ├── getMrApprovals.js
+    │   │   ├── getMrPipelines.js
+    │   │   ├── listProjectMrs.js
+    │   │   ├── getProject.js
+    │   │   ├── listBranches.js
+    │   │   └── getFileContent.js
+    │   └── utils/
+    │       ├── logger.js         # Winston logger
+    │       ├── errors.js         # Clases de error personalizadas
+    │       └── urlParser.js      # Parseo de URLs de GitLab
+    ├── tests/
+    ├── .env.example              # Referencia al .env raíz
+    ├── package.json
+    └── README.md
 ```
 
 ---
@@ -160,30 +152,17 @@ Lo siento, la información sensible del sistema no está disponible.
 
 ---
 
-# Variables de Entorno
+# Variables de Entorno (centralizadas)
 
-## Archivo .env
+Todas las variables se definen en el archivo `.env` en la raíz del monorepo.
+Cada servidor carga automáticamente desde `../../../../.env`.
 
 ```env
 # GitLab
-
-GITLAB_BASE_URL=https://gitlab.example.com
+GITLAB_BASE_URL=https://gitlab.tsgroup.com.ar
 GITLAB_PERSONAL_ACCESS_TOKEN=glpat-xxxxxxxxxxxxxxxx
 
-# MCP
-
-MCP_PORT=3000
-MCP_LOG_LEVEL=info
-```
-
----
-
-# Archivo .env.example
-
-```env
-GITLAB_BASE_URL=
-GITLAB_PERSONAL_ACCESS_TOKEN=
-
+# MCP (compartido)
 MCP_PORT=3000
 MCP_LOG_LEVEL=info
 ```

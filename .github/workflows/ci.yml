@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [jira-tempo, gitlab]
+        package: [jira-tempo, gitlab, oracle-db]
 
     steps:
       - uses: actions/checkout@v4

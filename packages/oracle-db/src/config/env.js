@@ -10,17 +10,17 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: resolve(__dirname, '../../../../.env') });
 
 const envSchema = z.object({
-  GITLAB_BASE_URL: z.string().url(),
-  GITLAB_PERSONAL_ACCESS_TOKEN: z.string().min(1),
+  ORACLE_USER: z.string().min(1),
+  ORACLE_PASSWORD: z.string().min(1),
+  ORACLE_CONNECT_STRING: z.string().min(1),
 
-  MCP_PORT: z.coerce.number().default(3000),
   MCP_LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
 });
 
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
-  console.error('Missing or invalid environment variables:');
+  console.error('Missing or invalid environment variables (oracle-db):');
   for (const issue of parsed.error.issues) {
     console.error(`  - ${issue.path.join('.')}: ${issue.message}`);
   }
