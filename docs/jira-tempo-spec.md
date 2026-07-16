@@ -96,64 +96,57 @@ Jira Tempo MCP Server
 # Estructura del Proyecto
 
 ```text
-jira-tempo-mcp/
-
-├── src/
+config-mcp/
+├── .env                          # Variables centralizadas (raíz del monorepo)
+├── .env.example                  # Template de variables
 │
-├── config/
-│   └── env.js
-│
-├── jira/
-│   ├── jiraClient.js
-│   ├── jiraService.js
-│   ├── jiraMapper.js
-│   └── jiraQueries.js
-│
-├── tempo/
-│   ├── tempoClient.js
-│   ├── tempoService.js
-│   └── tempoMapper.js
-│
-├── tools/
-│   ├── searchJql.js
-│   ├── getIssue.js
-│   ├── getEpic.js
-│   ├── getProject.js
-│   ├── getSprint.js
-│   ├── getBoard.js
-│   ├── getRelease.js
-│   ├── getBlockedIssues.js
-│   ├── getMyTasks.js
-│   ├── getEpicProgress.js
-│   ├── getProjectMetrics.js
-│   ├── getTempoWorklogs.js
-│   ├── getTempoUserHours.js
-│   ├── getTempoProjectHours.js
-│   ├── getTempoTeamHours.js
-│   └── getTempoIssueHours.js
-│
-├── middleware/
-│   ├── security.js
-│   ├── validation.js
-│   └── rateLimit.js
-│
-├── schemas/
-│   └── toolSchemas.js
-│
-├── utils/
-│   ├── logger.js
-│   ├── errors.js
-│   └── sanitizers.js
-│
-├── tests/
-│
-├── server.js
-│
-├── .env
-├── .env.example
-├── .gitignore
-├── package.json
-└── README.md
+└── packages/jira-tempo/
+    ├── src/
+    │   ├── server.js             # Entry point — registra tools y handlers MCP SDK
+    │   ├── config/
+    │   │   └── env.js            # Carga .env raíz y valida con Zod
+    │   ├── jira/
+    │   │   ├── jiraClient.js     # Cliente HTTP con Basic Auth
+    │   │   ├── jiraQueries.js    # Builders de JQL y fields
+    │   │   ├── jiraService.js    # Lógica de negocio — Jira
+    │   │   └── jiraMapper.js     # Transforma respuestas Jira
+    │   ├── tempo/
+    │   │   ├── tempoClient.js    # Cliente HTTP para Tempo API
+    │   │   ├── tempoService.js   # Lógica de negocio — Tempo
+    │   │   └── tempoMapper.js    # Transforma respuestas Tempo
+    │   ├── tools/
+    │   │   ├── searchJql.js
+    │   │   ├── getIssue.js
+    │   │   ├── getIssueComments.js
+    │   │   ├── getProject.js
+    │   │   ├── getEpic.js
+    │   │   ├── getEpicProgress.js
+    │   │   ├── getSprint.js
+    │   │   ├── getBoard.js
+    │   │   ├── getRelease.js
+    │   │   ├── getMyTasks.js
+    │   │   ├── getBlockedIssues.js
+    │   │   ├── getProjectMetrics.js
+    │   │   ├── getTempoWorklogs.js
+    │   │   ├── getTempoUserHours.js
+    │   │   ├── getTempoProjectHours.js
+    │   │   ├── getTempoTeamHours.js
+    │   │   └── getTempoIssueHours.js
+    │   ├── middleware/
+    │   │   ├── rateLimit.js      # Bottleneck (vía @config-mcp/mcp-core)
+    │   │   ├── security.js       # Sanitización de datos sensibles
+    │   │   └── validation.js     # Validación con Zod
+    │   ├── schemas/
+    │   │   └── toolSchemas.js    # Schemas y registro central de tools
+    │   └── utils/
+    │       ├── logger.js         # Winston logger
+    │       ├── errors.js         # Clases de error personalizadas
+    │       └── sanitizers.js     # Funciones de sanitización
+    ├── web/                      # Servidor web Express (opcional)
+    ├── tests/
+    ├── .env.example              # Referencia al .env raíz
+    ├── package.json
+    └── README.md
 ```
 
 ---
@@ -180,38 +173,21 @@ Lo siento, la información sensible del sistema no está disponible.
 
 ---
 
-# Variables de Entorno
+# Variables de Entorno (centralizadas)
 
-## Archivo .env
+Todas las variables se definen en el archivo `.env` en la raíz del monorepo.
+Cada servidor carga automáticamente desde `../../../../.env`.
 
 ```env
 # Jira
-
-JIRA_BASE_URL=https://empresa.atlassian.net
+JIRA_BASE_URL=https://cau-tsg.atlassian.net
 JIRA_EMAIL=usuario@empresa.com
 JIRA_API_TOKEN=xxxxxxxxxxxxxxxx
 
 # Tempo
-
 TEMPO_API_TOKEN=xxxxxxxxxxxxxxxx
 
-# MCP
-
-MCP_PORT=3000
-MCP_LOG_LEVEL=info
-```
-
----
-
-# Archivo .env.example
-
-```env
-JIRA_BASE_URL=
-JIRA_EMAIL=
-JIRA_API_TOKEN=
-
-TEMPO_API_TOKEN=
-
+# MCP (compartido)
 MCP_PORT=3000
 MCP_LOG_LEVEL=info
 ```
