@@ -16,3 +16,8 @@ logs/
 
 .DS_Store
 Thumbs.db
+
+# Local development metadata
+.codegraph/
+.atl/.skill-registry.cache.json
+.atl/skill-registry.md

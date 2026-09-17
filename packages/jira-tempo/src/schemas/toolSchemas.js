@@ -221,6 +221,67 @@ export const GET_ISSUE_COMMENTS_SCHEMA = {
   },
 };
 
+export const GET_ISSUE_HIERARCHY_SCHEMA = {
+  name: 'get_issue_hierarchy',
+  description: 'Get an issue parent and direct children',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      issueKey: { type: 'string', description: 'Issue key (e.g. RENTAX-123)' },
+    },
+    required: ['issueKey'],
+  },
+};
+
+export const GET_ISSUE_ATTACHMENTS_SCHEMA = {
+  name: 'get_issue_attachments',
+  description: 'List Jira issue attachment metadata without downloading files',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      issueKey: { type: 'string', description: 'Issue key (e.g. RENTAX-123)' },
+    },
+    required: ['issueKey'],
+  },
+};
+
+export const INSPECT_SQL_ATTACHMENT_SCHEMA = {
+  name: 'inspect_sql_attachment',
+  description: 'Inspecciona en memoria un adjunto SQL seleccionado de Jira; solo acepta texto SQL UTF-8 permitido.',
+  inputSchema: {
+    type: 'object', properties: {
+      issueKey: { type: 'string', description: 'Clave del issue (ej. RENTAX-123)' },
+      attachmentId: { type: 'string', description: 'ID explícito del adjunto SQL listado en el issue' },
+    }, required: ['issueKey', 'attachmentId'],
+  },
+};
+
+export const COMPARE_SQL_ATTACHMENTS_SCHEMA = {
+  name: 'compare_sql_attachments',
+  description: 'Compara en memoria dos adjuntos SQL seleccionados; no prueba equivalencia semántica.',
+  inputSchema: {
+    type: 'object', properties: {
+      firstIssueKey: { type: 'string' }, firstAttachmentId: { type: 'string' },
+      secondIssueKey: { type: 'string' }, secondAttachmentId: { type: 'string' },
+    }, required: ['firstIssueKey', 'firstAttachmentId', 'secondIssueKey', 'secondAttachmentId'],
+  },
+};
+
+export const GET_TEAM_WORKLOAD_SUMMARY_SCHEMA = {
+  name: 'get_team_workload_summary',
+  description: 'Resume horas Tempo para accountIds explícitos y período, umbrales y zona horaria declarados.',
+  inputSchema: {
+    type: 'object', properties: {
+      accountIds: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 50 },
+      from: { type: 'string', description: 'Fecha inicial YYYY-MM-DD' }, to: { type: 'string', description: 'Fecha final YYYY-MM-DD' },
+      timezone: { type: 'string', description: 'Zona horaria declarada por quien consulta' },
+      weekStartsOn: { type: 'string', enum: ['monday', 'sunday'] },
+      dailyThresholdHours: { type: 'number', description: 'Umbral diario explícito en horas' },
+      weeklyThresholdHours: { type: 'number', description: 'Umbral semanal explícito en horas' },
+    }, required: ['accountIds', 'from', 'to', 'timezone', 'weekStartsOn', 'dailyThresholdHours', 'weeklyThresholdHours'],
+  },
+};
+
 export const ALL_TOOLS = [
   SEARCH_JQL_SCHEMA,
   GET_ISSUE_SCHEMA,
@@ -234,6 +295,11 @@ export const ALL_TOOLS = [
   GET_PROJECT_METRICS_SCHEMA,
   GET_EPIC_PROGRESS_SCHEMA,
   GET_ISSUE_COMMENTS_SCHEMA,
+  GET_ISSUE_HIERARCHY_SCHEMA,
+  GET_ISSUE_ATTACHMENTS_SCHEMA,
+  INSPECT_SQL_ATTACHMENT_SCHEMA,
+  COMPARE_SQL_ATTACHMENTS_SCHEMA,
+  GET_TEAM_WORKLOAD_SUMMARY_SCHEMA,
   GET_TEMPO_WORKLOGS_SCHEMA,
   GET_TEMPO_USER_HOURS_SCHEMA,
   GET_TEMPO_PROJECT_HOURS_SCHEMA,

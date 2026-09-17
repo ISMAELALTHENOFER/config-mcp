@@ -78,6 +78,32 @@ export function mapIssueDetail(raw) {
   };
 }
 
+export function mapIssueHierarchy(raw, children) {
+  const parent = raw.fields?.parent;
+
+  return {
+    issue: mapIssue(raw),
+    parent: parent ? mapIssue(parent) : null,
+    children: children.map(mapIssue),
+  };
+}
+
+export function mapAttachments(raw) {
+  return (raw.fields?.attachment || []).map((attachment) => ({
+    id: attachment.id,
+    filename: attachment.filename,
+    size: attachment.size,
+    mimeType: attachment.mimeType,
+    created: attachment.created || null,
+    author: attachment.author
+      ? {
+          accountId: attachment.author.accountId,
+          displayName: attachment.author.displayName,
+        }
+      : null,
+  }));
+}
+
 export function mapSearchResults(raw) {
   return {
     total: raw.total,

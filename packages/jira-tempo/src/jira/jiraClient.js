@@ -48,6 +48,22 @@ export async function jiraGet(url, params = {}) {
   );
 }
 
+export async function jiraGetBytes(url, maxBytes) {
+  return limiter.schedule(async () => {
+    const response = await jiraAxios.get(url, {
+      responseType: 'arraybuffer',
+      maxContentLength: maxBytes,
+      maxBodyLength: maxBytes,
+      headers: { Accept: 'text/plain, application/sql, text/sql' },
+    });
+    const bytes = Buffer.from(response.data);
+    if (bytes.length > maxBytes) {
+      throw new Error(`Attachment exceeds the ${maxBytes}-byte limit.`);
+    }
+    return bytes;
+  });
+}
+
 export async function jiraPost(url, data = {}) {
   return limiter.schedule(() =>
     jiraAxios.post(url, data).then((r) => r.data),
