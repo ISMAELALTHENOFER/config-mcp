@@ -5,6 +5,9 @@ describe('config/env', () => {
 
   beforeEach(() => {
     jest.resetModules();
+    jest.unstable_mockModule('dotenv', () => ({
+      default: { config: jest.fn() },
+    }));
     process.env = { ...OLD_ENV };
     delete process.env.GITLAB_BASE_URL;
     delete process.env.GITLAB_PERSONAL_ACCESS_TOKEN;
