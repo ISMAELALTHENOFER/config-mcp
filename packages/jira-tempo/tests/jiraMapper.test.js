@@ -7,6 +7,8 @@ import {
   mapBoard,
   mapSprint,
   mapVersion,
+  mapIssueHierarchy,
+  mapAttachments,
 } from '../src/jira/jiraMapper.js';
 
 describe('jiraMapper', () => {
@@ -74,6 +76,56 @@ describe('jiraMapper', () => {
       expect(result.subtasks[0].key).toBe('TEST-124');
       expect(result.parent.key).toBe('TEST-100');
       expect(result.epic.key).toBe('TEST-100');
+    });
+  });
+
+  describe('mapIssueHierarchy', () => {
+    it('should map a parent and direct children', () => {
+      const raw = {
+        key: 'TEST-2',
+        fields: {
+          summary: 'Current issue',
+          parent: { key: 'TEST-1', fields: { summary: 'Parent issue' } },
+        },
+      };
+      const children = [{ key: 'TEST-3', fields: { summary: 'Child issue' } }];
+
+      const result = mapIssueHierarchy(raw, children);
+
+      expect(result.issue.key).toBe('TEST-2');
+      expect(result.parent.key).toBe('TEST-1');
+      expect(result.children[0].key).toBe('TEST-3');
+    });
+  });
+
+  describe('mapAttachments', () => {
+    it('should expose metadata without a download URL', () => {
+      const result = mapAttachments({
+        fields: {
+          attachment: [
+            {
+              id: '1',
+              filename: 'evidence.pdf',
+              size: 42,
+              mimeType: 'application/pdf',
+              content: 'https://jira.example.com/download/1',
+              author: { accountId: 'abc', displayName: 'John Doe' },
+            },
+          ],
+        },
+      });
+
+      expect(result).toEqual([
+        {
+          id: '1',
+          filename: 'evidence.pdf',
+          size: 42,
+          mimeType: 'application/pdf',
+          created: null,
+          author: { accountId: 'abc', displayName: 'John Doe' },
+        },
+      ]);
+      expect(result[0]).not.toHaveProperty('content');
     });
   });
 

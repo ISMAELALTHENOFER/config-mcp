@@ -26,6 +26,10 @@ export function buildIssueByKeyJql(issueKey) {
   return `key = ${issueKey}`;
 }
 
+export function buildIssueChildrenJql(issueKey) {
+  return `parent = ${issueKey} ORDER BY created ASC`;
+}
+
 export const FIELDS_DEFAULT = [
   'summary',
   'status',
