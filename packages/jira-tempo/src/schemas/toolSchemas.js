@@ -247,7 +247,7 @@ export const GET_ISSUE_ATTACHMENTS_SCHEMA = {
 
 export const DOWNLOAD_ATTACHMENT_SCHEMA = {
   name: 'download_attachment',
-  description: 'Download one selected Jira attachment in memory for verification; does not write files.',
+  description: 'Persist one selected Jira attachment beneath JIRA_ATTACHMENT_DOWNLOAD_DIR and return its local path and verification metadata.',
   inputSchema: {
     type: 'object', properties: {
       issueKey: { type: 'string', description: 'Issue key (e.g. RENTAX-123)' },
