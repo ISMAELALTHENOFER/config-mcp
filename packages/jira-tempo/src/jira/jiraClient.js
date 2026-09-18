@@ -54,7 +54,7 @@ export async function jiraGetBytes(url, maxBytes) {
       responseType: 'arraybuffer',
       maxContentLength: maxBytes,
       maxBodyLength: maxBytes,
-      headers: { Accept: 'text/plain, application/sql, text/sql' },
+      headers: { Accept: 'application/octet-stream, */*' },
     });
     const bytes = Buffer.from(response.data);
     if (bytes.length > maxBytes) {

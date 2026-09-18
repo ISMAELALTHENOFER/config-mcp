@@ -2,6 +2,10 @@ import { z } from 'zod';
 
 const issueKeyRegex = /^[A-Z][A-Z0-9]+-\d+$/;
 const projectKeyRegex = /^[A-Z][A-Z0-9]+$/;
+const attachmentSchema = z.object({
+  issueKey: z.string().regex(issueKeyRegex, 'Invalid issue key format'),
+  attachmentId: z.string().min(1).max(100),
+});
 
 export const schemas = {
   issueKey: z.object({
@@ -33,10 +37,8 @@ export const schemas = {
   accountId: z.object({
     accountId: z.string().min(1),
   }),
-  sqlAttachment: z.object({
-    issueKey: z.string().regex(issueKeyRegex, 'Invalid issue key format'),
-    attachmentId: z.string().min(1).max(100),
-  }),
+  attachment: attachmentSchema,
+  sqlAttachment: attachmentSchema,
   sqlAttachmentComparison: z.object({
     firstIssueKey: z.string().regex(issueKeyRegex, 'Invalid issue key format'),
     firstAttachmentId: z.string().min(1).max(100),

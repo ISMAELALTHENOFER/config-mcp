@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { jiraGet, jiraGetBytes } from './jiraClient.js';
 import {
   buildMyTasksJql,
@@ -20,22 +21,54 @@ import {
   mapAttachments,
 } from './jiraMapper.js';
 import { JiraError } from '../utils/errors.js';
-import { assertSafeSqlAttachment, MAX_SQL_ATTACHMENT_BYTES } from './sqlAnalysis.js';
+import { assertSafeAttachment, assertSafeSqlAttachment, MAX_SQL_ATTACHMENT_BYTES } from './sqlAnalysis.js';
 import { env } from '../config/env.js';
+
+function safeAttachmentUrl(content) {
+  if (!content) throw new Error('Selected attachment has no download URL.');
+  const url = new URL(content, env.JIRA_BASE_URL);
+  if (url.origin !== new URL(env.JIRA_BASE_URL).origin || url.username || url.password) {
+    throw new Error('Selected attachment has an unsupported download origin.');
+  }
+  return url.href;
+}
+
+async function findAttachment(issueKey, attachmentId) {
+  const issue = await jiraGet(`/rest/api/3/issue/${issueKey}`, { fields: 'attachment' });
+  const attachment = (issue.fields?.attachment || []).find((item) => item.id === attachmentId);
+  if (!attachment) throw new Error('Selected attachment was not found on the issue.');
+  return attachment;
+}
+
+export async function getAttachment(issueKey, attachmentId) {
+  try {
+    const attachment = await findAttachment(issueKey, attachmentId);
+    assertSafeAttachment(attachment);
+    const bytes = await jiraGetBytes(safeAttachmentUrl(attachment.content), MAX_SQL_ATTACHMENT_BYTES);
+    const content = Buffer.from(bytes).toString('base64');
+    const hash = createHash('sha256').update(bytes).digest('hex');
+    return {
+      issueKey,
+      attachmentId,
+      filename: attachment.filename,
+      mimeType: attachment.mimeType,
+      bytes: bytes.length,
+      sha256: hash,
+      contentBase64: content,
+    };
+  } catch (error) {
+    throw new JiraError(`Failed to retrieve attachment for ${issueKey}: ${error.message}`);
+  }
+}
 
 export async function getSqlAttachment(issueKey, attachmentId) {
   try {
-    const issue = await jiraGet(`/rest/api/3/issue/${issueKey}`, { fields: 'attachment' });
-    const attachment = (issue.fields?.attachment || []).find((item) => item.id === attachmentId);
-    if (!attachment) throw new Error('Selected attachment was not found on the issue.');
+    const attachment = await findAttachment(issueKey, attachmentId);
     assertSafeSqlAttachment(attachment);
-    const baseOrigin = new URL(env.JIRA_BASE_URL).origin;
-    if (!attachment.content || new URL(attachment.content, env.JIRA_BASE_URL).origin !== baseOrigin) {
-      throw new Error('Selected attachment has an unsupported download origin.');
-    }
+    const contentUrl = safeAttachmentUrl(attachment.content);
     let sql;
     try {
-      sql = new TextDecoder('utf-8', { fatal: true }).decode(await jiraGetBytes(attachment.content, MAX_SQL_ATTACHMENT_BYTES));
+      sql = new TextDecoder('utf-8', { fatal: true }).decode(await jiraGetBytes(contentUrl, MAX_SQL_ATTACHMENT_BYTES));
     } catch (error) {
       throw new Error(`Selected attachment is not supported UTF-8 text: ${error.message}`);
     }

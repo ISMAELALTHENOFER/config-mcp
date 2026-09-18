@@ -245,6 +245,17 @@ export const GET_ISSUE_ATTACHMENTS_SCHEMA = {
   },
 };
 
+export const DOWNLOAD_ATTACHMENT_SCHEMA = {
+  name: 'download_attachment',
+  description: 'Download one selected Jira attachment in memory for verification; does not write files.',
+  inputSchema: {
+    type: 'object', properties: {
+      issueKey: { type: 'string', description: 'Issue key (e.g. RENTAX-123)' },
+      attachmentId: { type: 'string', description: 'ID of the attachment listed on the issue' },
+    }, required: ['issueKey', 'attachmentId'],
+  },
+};
+
 export const INSPECT_SQL_ATTACHMENT_SCHEMA = {
   name: 'inspect_sql_attachment',
   description: 'Inspecciona en memoria un adjunto SQL seleccionado de Jira; solo acepta texto SQL UTF-8 permitido.',
@@ -297,6 +308,7 @@ export const ALL_TOOLS = [
   GET_ISSUE_COMMENTS_SCHEMA,
   GET_ISSUE_HIERARCHY_SCHEMA,
   GET_ISSUE_ATTACHMENTS_SCHEMA,
+  DOWNLOAD_ATTACHMENT_SCHEMA,
   INSPECT_SQL_ATTACHMENT_SCHEMA,
   COMPARE_SQL_ATTACHMENTS_SCHEMA,
   GET_TEAM_WORKLOAD_SUMMARY_SCHEMA,

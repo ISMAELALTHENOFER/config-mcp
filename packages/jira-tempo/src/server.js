@@ -28,6 +28,7 @@ import { handleGetTempoIssueHours } from './tools/getTempoIssueHours.js';
 import { handleGetIssueComments } from './tools/getIssueComments.js';
 import { handleGetIssueHierarchy } from './tools/getIssueHierarchy.js';
 import { handleGetIssueAttachments } from './tools/getIssueAttachments.js';
+import { handleDownloadAttachment } from './tools/downloadAttachment.js';
 import { handleInspectSqlAttachment } from './tools/inspectSqlAttachment.js';
 import { handleCompareSqlAttachments } from './tools/compareSqlAttachments.js';
 import { handleGetTeamWorkloadSummary } from './tools/getTeamWorkloadSummary.js';
@@ -52,6 +53,7 @@ const TOOL_HANDLERS = {
   get_issue_comments: handleGetIssueComments,
   get_issue_hierarchy: handleGetIssueHierarchy,
   get_issue_attachments: handleGetIssueAttachments,
+  download_attachment: handleDownloadAttachment,
   inspect_sql_attachment: handleInspectSqlAttachment,
   compare_sql_attachments: handleCompareSqlAttachments,
   get_team_workload_summary: handleGetTeamWorkloadSummary,

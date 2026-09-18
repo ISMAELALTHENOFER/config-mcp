@@ -2,13 +2,17 @@ const MAX_STATEMENT_PREVIEW = 240;
 export const MAX_SQL_ATTACHMENT_BYTES = 1024 * 1024;
 const SQL_MIME_TYPES = new Set(['text/plain', 'text/sql', 'application/sql', 'application/x-sql']);
 
+export function assertSafeAttachment(attachment) {
+  if (!Number.isInteger(attachment?.size) || attachment.size < 0 || attachment.size > MAX_SQL_ATTACHMENT_BYTES) {
+    throw new Error(`Selected attachment exceeds the ${MAX_SQL_ATTACHMENT_BYTES}-byte limit.`);
+  }
+}
+
 export function assertSafeSqlAttachment(attachment) {
   if (!attachment?.filename?.toLowerCase().endsWith('.sql') || !SQL_MIME_TYPES.has(attachment.mimeType?.toLowerCase())) {
     throw new Error('Selected attachment is not an allowed SQL text attachment.');
   }
-  if (!Number.isInteger(attachment.size) || attachment.size < 0 || attachment.size > MAX_SQL_ATTACHMENT_BYTES) {
-    throw new Error(`Selected attachment exceeds the ${MAX_SQL_ATTACHMENT_BYTES}-byte limit.`);
-  }
+  assertSafeAttachment(attachment);
 }
 
 function stripComments(sql) {
