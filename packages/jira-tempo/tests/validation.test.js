@@ -15,6 +15,11 @@ describe('validation', () => {
     });
   });
 
+  it('validates selected attachment identifiers', () => {
+    expect(validate(schemas.attachment, { issueKey: 'TEST-123', attachmentId: '42' })).toEqual({ issueKey: 'TEST-123', attachmentId: '42' });
+    expect(() => validate(schemas.attachment, { issueKey: 'TEST-123', attachmentId: '' })).toThrow();
+  });
+
   describe('projectKey', () => {
     it('should accept valid project keys', () => {
       const valid = validate(schemas.projectKey, { projectKey: 'TEST' });
