@@ -45,7 +45,6 @@ export async function getAttachment(issueKey, attachmentId) {
     const attachment = await findAttachment(issueKey, attachmentId);
     assertSafeAttachment(attachment);
     const bytes = await jiraGetBytes(safeAttachmentUrl(attachment.content), MAX_SQL_ATTACHMENT_BYTES);
-    const content = Buffer.from(bytes).toString('base64');
     const hash = createHash('sha256').update(bytes).digest('hex');
     return {
       issueKey,
@@ -54,7 +53,7 @@ export async function getAttachment(issueKey, attachmentId) {
       mimeType: attachment.mimeType,
       bytes: bytes.length,
       sha256: hash,
-      contentBase64: content,
+      content: Buffer.from(bytes),
     };
   } catch (error) {
     throw new JiraError(`Failed to retrieve attachment for ${issueKey}: ${error.message}`);
