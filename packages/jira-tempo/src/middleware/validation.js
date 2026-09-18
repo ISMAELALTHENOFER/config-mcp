@@ -33,6 +33,32 @@ export const schemas = {
   accountId: z.object({
     accountId: z.string().min(1),
   }),
+  sqlAttachment: z.object({
+    issueKey: z.string().regex(issueKeyRegex, 'Invalid issue key format'),
+    attachmentId: z.string().min(1).max(100),
+  }),
+  sqlAttachmentComparison: z.object({
+    firstIssueKey: z.string().regex(issueKeyRegex, 'Invalid issue key format'),
+    firstAttachmentId: z.string().min(1).max(100),
+    secondIssueKey: z.string().regex(issueKeyRegex, 'Invalid issue key format'),
+    secondAttachmentId: z.string().min(1).max(100),
+  }),
+  teamWorkloadSummary: z.object({
+    accountIds: z.array(z.string().min(1)).min(1).max(50).refine((ids) => new Set(ids).size === ids.length, 'Account IDs must be unique'),
+    from: z.string().date(),
+    to: z.string().date(),
+    timezone: z.string().min(1).max(100).refine((timezone) => {
+      try {
+        new Intl.DateTimeFormat('en-US', { timeZone: timezone });
+        return true;
+      } catch {
+        return false;
+      }
+    }, 'Invalid IANA timezone'),
+    weekStartsOn: z.enum(['monday', 'sunday']),
+    dailyThresholdHours: z.number().min(0).max(24),
+    weeklyThresholdHours: z.number().min(0).max(168),
+  }).refine((value) => value.from <= value.to, { message: 'from must be on or before to', path: ['to'] }),
 };
 
 export function validate(schema, data) {

@@ -1,9 +1,10 @@
-import { jiraGet } from './jiraClient.js';
+import { jiraGet, jiraGetBytes } from './jiraClient.js';
 import {
   buildMyTasksJql,
   buildBlockedIssuesJql,
   buildEpicStoriesJql,
   buildProjectMetricsJql,
+  buildIssueChildrenJql,
   FIELDS_DEFAULT,
   FIELDS_ISSUE_DETAIL,
 } from './jiraQueries.js';
@@ -15,8 +16,34 @@ import {
   mapSprint,
   mapVersion,
   mapComments,
+  mapIssueHierarchy,
+  mapAttachments,
 } from './jiraMapper.js';
 import { JiraError } from '../utils/errors.js';
+import { assertSafeSqlAttachment, MAX_SQL_ATTACHMENT_BYTES } from './sqlAnalysis.js';
+import { env } from '../config/env.js';
+
+export async function getSqlAttachment(issueKey, attachmentId) {
+  try {
+    const issue = await jiraGet(`/rest/api/3/issue/${issueKey}`, { fields: 'attachment' });
+    const attachment = (issue.fields?.attachment || []).find((item) => item.id === attachmentId);
+    if (!attachment) throw new Error('Selected attachment was not found on the issue.');
+    assertSafeSqlAttachment(attachment);
+    const baseOrigin = new URL(env.JIRA_BASE_URL).origin;
+    if (!attachment.content || new URL(attachment.content, env.JIRA_BASE_URL).origin !== baseOrigin) {
+      throw new Error('Selected attachment has an unsupported download origin.');
+    }
+    let sql;
+    try {
+      sql = new TextDecoder('utf-8', { fatal: true }).decode(await jiraGetBytes(attachment.content, MAX_SQL_ATTACHMENT_BYTES));
+    } catch (error) {
+      throw new Error(`Selected attachment is not supported UTF-8 text: ${error.message}`);
+    }
+    return { issueKey, attachmentId, filename: attachment.filename, bytes: attachment.size, sql };
+  } catch (error) {
+    throw new JiraError(`Failed to retrieve SQL attachment for ${issueKey}: ${error.message}`);
+  }
+}
 
 export async function searchJql(jql, maxResults = 50) {
   try {
@@ -39,6 +66,38 @@ export async function getIssue(issueKey) {
     return mapIssueDetail(data);
   } catch (error) {
     throw new JiraError(`Failed to get issue ${issueKey}: ${error.message}`);
+  }
+}
+
+export async function getIssueHierarchy(issueKey) {
+  try {
+    const [issue, children] = await Promise.all([
+      jiraGet(`/rest/api/3/issue/${issueKey}`, {
+        fields: 'summary,status,issuetype,parent,project',
+      }),
+      searchJql(buildIssueChildrenJql(issueKey), 500),
+    ]);
+    return mapIssueHierarchy(issue, children.issues);
+  } catch (error) {
+    throw new JiraError(
+      `Failed to get hierarchy for ${issueKey}: ${error.message}`,
+    );
+  }
+}
+
+export async function getIssueAttachments(issueKey) {
+  try {
+    const issue = await jiraGet(`/rest/api/3/issue/${issueKey}`, {
+      fields: 'attachment',
+    });
+    return {
+      issueKey,
+      attachments: mapAttachments(issue),
+    };
+  } catch (error) {
+    throw new JiraError(
+      `Failed to get attachments for ${issueKey}: ${error.message}`,
+    );
   }
 }
 

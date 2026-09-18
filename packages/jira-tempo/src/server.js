@@ -26,6 +26,11 @@ import { handleGetTempoProjectHours } from './tools/getTempoProjectHours.js';
 import { handleGetTempoTeamHours } from './tools/getTempoTeamHours.js';
 import { handleGetTempoIssueHours } from './tools/getTempoIssueHours.js';
 import { handleGetIssueComments } from './tools/getIssueComments.js';
+import { handleGetIssueHierarchy } from './tools/getIssueHierarchy.js';
+import { handleGetIssueAttachments } from './tools/getIssueAttachments.js';
+import { handleInspectSqlAttachment } from './tools/inspectSqlAttachment.js';
+import { handleCompareSqlAttachments } from './tools/compareSqlAttachments.js';
+import { handleGetTeamWorkloadSummary } from './tools/getTeamWorkloadSummary.js';
 
 const TOOL_HANDLERS = {
   search_jql: handleSearchJql,
@@ -45,6 +50,11 @@ const TOOL_HANDLERS = {
   get_tempo_team_hours: handleGetTempoTeamHours,
   get_tempo_issue_hours: handleGetTempoIssueHours,
   get_issue_comments: handleGetIssueComments,
+  get_issue_hierarchy: handleGetIssueHierarchy,
+  get_issue_attachments: handleGetIssueAttachments,
+  inspect_sql_attachment: handleInspectSqlAttachment,
+  compare_sql_attachments: handleCompareSqlAttachments,
+  get_team_workload_summary: handleGetTeamWorkloadSummary,
 };
 
 const rateLimitMiddleware = createRateLimitMiddleware(200);
