@@ -21,7 +21,7 @@ import {
   mapAttachments,
 } from './jiraMapper.js';
 import { JiraError } from '../utils/errors.js';
-import { assertSafeAttachment, assertSafeSqlAttachment, MAX_SQL_ATTACHMENT_BYTES } from './sqlAnalysis.js';
+import { assertSafeAttachment, assertSafeSqlAttachment, inspectSqlAttachmentBytes, MAX_SQL_ATTACHMENT_BYTES } from './sqlAnalysis.js';
 import { env } from '../config/env.js';
 
 function safeAttachmentUrl(content) {
@@ -45,7 +45,6 @@ export async function getAttachment(issueKey, attachmentId) {
     const attachment = await findAttachment(issueKey, attachmentId);
     assertSafeAttachment(attachment);
     const bytes = await jiraGetBytes(safeAttachmentUrl(attachment.content), MAX_SQL_ATTACHMENT_BYTES);
-    const content = Buffer.from(bytes).toString('base64');
     const hash = createHash('sha256').update(bytes).digest('hex');
     return {
       issueKey,
@@ -54,7 +53,7 @@ export async function getAttachment(issueKey, attachmentId) {
       mimeType: attachment.mimeType,
       bytes: bytes.length,
       sha256: hash,
-      contentBase64: content,
+      content: Buffer.from(bytes),
     };
   } catch (error) {
     throw new JiraError(`Failed to retrieve attachment for ${issueKey}: ${error.message}`);
@@ -66,13 +65,8 @@ export async function getSqlAttachment(issueKey, attachmentId) {
     const attachment = await findAttachment(issueKey, attachmentId);
     assertSafeSqlAttachment(attachment);
     const contentUrl = safeAttachmentUrl(attachment.content);
-    let sql;
-    try {
-      sql = new TextDecoder('utf-8', { fatal: true }).decode(await jiraGetBytes(contentUrl, MAX_SQL_ATTACHMENT_BYTES));
-    } catch (error) {
-      throw new Error(`Selected attachment is not supported UTF-8 text: ${error.message}`);
-    }
-    return { issueKey, attachmentId, filename: attachment.filename, bytes: attachment.size, sql };
+    const entries = inspectSqlAttachmentBytes(attachment, await jiraGetBytes(contentUrl, MAX_SQL_ATTACHMENT_BYTES));
+    return { issueKey, attachmentId, filename: attachment.filename, bytes: attachment.size, entries, sql: entries.map((entry) => entry.sql).join('\n') };
   } catch (error) {
     throw new JiraError(`Failed to retrieve SQL attachment for ${issueKey}: ${error.message}`);
   }

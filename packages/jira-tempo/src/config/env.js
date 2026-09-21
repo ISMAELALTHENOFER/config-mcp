@@ -13,6 +13,7 @@ const envSchema = z.object({
   JIRA_BASE_URL: z.string().url(),
   JIRA_EMAIL: z.string().email(),
   JIRA_API_TOKEN: z.string().min(1),
+  JIRA_ATTACHMENT_DOWNLOAD_DIR: z.string().min(1),
 
   TEMPO_API_TOKEN: z.string().min(1),
 

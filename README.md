@@ -31,6 +31,7 @@ Consulta Jira y Tempo. Requiere `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN` 
 | `get_tempo_project_hours` | Obtiene horas de un proyecto en un rango de fechas. |
 | `get_tempo_team_hours` | Obtiene horas de un equipo. |
 | `get_tempo_issue_hours` | Obtiene el total de horas de un issue. |
+| `download_attachment` | Persists an explicitly selected Jira attachment beneath `JIRA_ATTACHMENT_DOWNLOAD_DIR` and returns its local path and verification metadata. |
 
 ### `gitlab`
 
@@ -123,6 +124,7 @@ Todas las variables se definen en el único archivo `.env` de la raíz. Cada ser
 | `JIRA_BASE_URL` | `jira-tempo` | Sí | URL de Jira. |
 | `JIRA_EMAIL` | `jira-tempo` | Sí | Email de la cuenta de Jira. |
 | `JIRA_API_TOKEN` | `jira-tempo` | Sí | API token de Jira. |
+| `JIRA_ATTACHMENT_DOWNLOAD_DIR` | `jira-tempo` | Sí | Root directory where selected Jira attachments are persisted locally. |
 | `TEMPO_API_TOKEN` | `jira-tempo` | Sí | API token de Tempo. |
 | `GITLAB_BASE_URL` | `gitlab` | Sí | URL base de GitLab. |
 | `GITLAB_PERSONAL_ACCESS_TOKEN` | `gitlab` | Sí | Token personal con alcance `read_api`. |
@@ -284,7 +286,7 @@ Cada servidor mantiene estos scripts, salvo indicación contraria:
 
 ## Principios operativos
 
-- **Solo lectura:** las herramientas consultan datos y no exponen operaciones de escritura.
+- **Solo lectura externa:** las herramientas consultan datos y no exponen operaciones de escritura en los sistemas remotos. `download_attachment` writes only the explicitly selected attachment beneath its configured local directory.
 - **Transporte stdio:** cada servidor se inicia como proceso local para el cliente MCP.
 - **Validación:** los argumentos se validan antes de realizar llamadas externas o consultas.
 - **Protección de secretos:** las credenciales se cargan desde `.env` y los logs redactan información sensible cuando corresponde.
