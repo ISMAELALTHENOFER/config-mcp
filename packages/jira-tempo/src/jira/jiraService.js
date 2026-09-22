@@ -21,7 +21,12 @@ import {
   mapAttachments,
 } from './jiraMapper.js';
 import { JiraError } from '../utils/errors.js';
-import { assertSafeAttachment, assertSafeSqlAttachment, inspectSqlAttachmentBytes, MAX_SQL_ATTACHMENT_BYTES } from './sqlAnalysis.js';
+import {
+  assertSafeAttachment,
+  assertSafeSqlAttachment,
+  inspectSqlAttachmentBytes,
+  MAX_SQL_ATTACHMENT_BYTES,
+} from './sqlAnalysis.js';
 import { env } from '../config/env.js';
 
 function safeAttachmentUrl(content) {
@@ -35,7 +40,9 @@ function safeAttachmentUrl(content) {
 
 async function findAttachment(issueKey, attachmentId) {
   const issue = await jiraGet(`/rest/api/3/issue/${issueKey}`, { fields: 'attachment' });
-  const attachment = (issue.fields?.attachment || []).find((item) => item.id === attachmentId);
+  const attachment = (issue.fields?.attachment || []).find(
+    (item) => item.id === attachmentId,
+  );
   if (!attachment) throw new Error('Selected attachment was not found on the issue.');
   return attachment;
 }
@@ -44,7 +51,10 @@ export async function getAttachment(issueKey, attachmentId) {
   try {
     const attachment = await findAttachment(issueKey, attachmentId);
     assertSafeAttachment(attachment);
-    const bytes = await jiraGetBytes(safeAttachmentUrl(attachment.content), MAX_SQL_ATTACHMENT_BYTES);
+    const bytes = await jiraGetBytes(
+      safeAttachmentUrl(attachment.content),
+      MAX_SQL_ATTACHMENT_BYTES,
+    );
     const hash = createHash('sha256').update(bytes).digest('hex');
     return {
       issueKey,
@@ -56,7 +66,9 @@ export async function getAttachment(issueKey, attachmentId) {
       content: Buffer.from(bytes),
     };
   } catch (error) {
-    throw new JiraError(`Failed to retrieve attachment for ${issueKey}: ${error.message}`);
+    throw new JiraError(
+      `Failed to retrieve attachment for ${issueKey}: ${error.message}`,
+    );
   }
 }
 
@@ -65,10 +77,22 @@ export async function getSqlAttachment(issueKey, attachmentId) {
     const attachment = await findAttachment(issueKey, attachmentId);
     assertSafeSqlAttachment(attachment);
     const contentUrl = safeAttachmentUrl(attachment.content);
-    const entries = inspectSqlAttachmentBytes(attachment, await jiraGetBytes(contentUrl, MAX_SQL_ATTACHMENT_BYTES));
-    return { issueKey, attachmentId, filename: attachment.filename, bytes: attachment.size, entries, sql: entries.map((entry) => entry.sql).join('\n') };
+    const entries = inspectSqlAttachmentBytes(
+      attachment,
+      await jiraGetBytes(contentUrl, MAX_SQL_ATTACHMENT_BYTES),
+    );
+    return {
+      issueKey,
+      attachmentId,
+      filename: attachment.filename,
+      bytes: attachment.size,
+      entries,
+      sql: entries.map((entry) => entry.sql).join('\n'),
+    };
   } catch (error) {
-    throw new JiraError(`Failed to retrieve SQL attachment for ${issueKey}: ${error.message}`);
+    throw new JiraError(
+      `Failed to retrieve SQL attachment for ${issueKey}: ${error.message}`,
+    );
   }
 }
 
@@ -106,9 +130,7 @@ export async function getIssueHierarchy(issueKey) {
     ]);
     return mapIssueHierarchy(issue, children.issues);
   } catch (error) {
-    throw new JiraError(
-      `Failed to get hierarchy for ${issueKey}: ${error.message}`,
-    );
+    throw new JiraError(`Failed to get hierarchy for ${issueKey}: ${error.message}`);
   }
 }
 
@@ -122,9 +144,7 @@ export async function getIssueAttachments(issueKey) {
       attachments: mapAttachments(issue),
     };
   } catch (error) {
-    throw new JiraError(
-      `Failed to get attachments for ${issueKey}: ${error.message}`,
-    );
+    throw new JiraError(`Failed to get attachments for ${issueKey}: ${error.message}`);
   }
 }
 
@@ -187,9 +207,7 @@ export async function getIssueComments(issueKey) {
     const data = await jiraGet(`/rest/api/3/issue/${issueKey}/comment`);
     return mapComments(data);
   } catch (error) {
-    throw new JiraError(
-      `Failed to get comments for ${issueKey}: ${error.message}`,
-    );
+    throw new JiraError(`Failed to get comments for ${issueKey}: ${error.message}`);
   }
 }
 
@@ -224,8 +242,6 @@ export async function getProjectMetrics(projectKey) {
       done: doneRes.total,
     };
   } catch (error) {
-    throw new JiraError(
-      `Failed to get metrics for ${projectKey}: ${error.message}`,
-    );
+    throw new JiraError(`Failed to get metrics for ${projectKey}: ${error.message}`);
   }
 }

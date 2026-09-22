@@ -66,6 +66,7 @@ describe('jiraMapper', () => {
           ],
           parent: { key: 'TEST-100', fields: { summary: 'Epic' } },
           customfield_10014: 'TEST-100',
+          timetracking: { originalEstimateSeconds: 7200, remainingEstimateSeconds: 3600 },
         },
       };
 
@@ -76,6 +77,19 @@ describe('jiraMapper', () => {
       expect(result.subtasks[0].key).toBe('TEST-124');
       expect(result.parent.key).toBe('TEST-100');
       expect(result.epic.key).toBe('TEST-100');
+      expect(result.timeTracking).toEqual({
+        originalEstimateSeconds: 7200,
+        remainingEstimateSeconds: 3600,
+      });
+    });
+
+    it('should expose null estimates when time tracking is unavailable', () => {
+      const result = mapIssueDetail({ key: 'TEST-124', fields: {} });
+
+      expect(result.timeTracking).toEqual({
+        originalEstimateSeconds: null,
+        remainingEstimateSeconds: null,
+      });
     });
   });
 

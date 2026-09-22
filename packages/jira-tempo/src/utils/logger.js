@@ -3,10 +3,7 @@ import { env } from '../config/env.js';
 
 export const logger = winston.createLogger({
   level: env.MCP_LOG_LEVEL,
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json(),
-  ),
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
   defaultMeta: { service: 'jira-tempo' },
   transports: [new winston.transports.Console()],
 });

@@ -75,6 +75,10 @@ export function mapIssueDetail(raw) {
           key: fields.customfield_10014,
         }
       : null,
+    timeTracking: {
+      originalEstimateSeconds: fields.timetracking?.originalEstimateSeconds ?? null,
+      remainingEstimateSeconds: fields.timetracking?.remainingEstimateSeconds ?? null,
+    },
   };
 }
 
