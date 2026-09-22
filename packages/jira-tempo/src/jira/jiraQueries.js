@@ -62,4 +62,5 @@ export const FIELDS_ISSUE_DETAIL = [
   'subtasks',
   'parent',
   'customfield_10014',
+  'timetracking',
 ].join(',');

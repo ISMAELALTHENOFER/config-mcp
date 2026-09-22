@@ -55,10 +55,7 @@ function formatSeconds(seconds) {
 }
 
 export function aggregateHours(worklogs) {
-  const totalSeconds = worklogs.reduce(
-    (sum, w) => sum + (w.timeSpentSeconds || 0),
-    0,
-  );
+  const totalSeconds = worklogs.reduce((sum, w) => sum + (w.timeSpentSeconds || 0), 0);
   return {
     totalSeconds,
     formatted: formatSeconds(totalSeconds),

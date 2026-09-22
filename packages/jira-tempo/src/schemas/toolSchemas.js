@@ -247,49 +247,92 @@ export const GET_ISSUE_ATTACHMENTS_SCHEMA = {
 
 export const DOWNLOAD_ATTACHMENT_SCHEMA = {
   name: 'download_attachment',
-  description: 'Persist one selected Jira attachment beneath JIRA_ATTACHMENT_DOWNLOAD_DIR and return its local path and verification metadata.',
+  description:
+    'Persist one selected Jira attachment beneath JIRA_ATTACHMENT_DOWNLOAD_DIR and return its local path and verification metadata.',
   inputSchema: {
-    type: 'object', properties: {
+    type: 'object',
+    properties: {
       issueKey: { type: 'string', description: 'Issue key (e.g. RENTAX-123)' },
-      attachmentId: { type: 'string', description: 'ID of the attachment listed on the issue' },
-    }, required: ['issueKey', 'attachmentId'],
+      attachmentId: {
+        type: 'string',
+        description: 'ID of the attachment listed on the issue',
+      },
+    },
+    required: ['issueKey', 'attachmentId'],
   },
 };
 
 export const INSPECT_SQL_ATTACHMENT_SCHEMA = {
   name: 'inspect_sql_attachment',
-  description: 'Inspecciona en memoria un adjunto SQL seleccionado de Jira; solo acepta texto SQL UTF-8 permitido.',
+  description:
+    'Inspecciona en memoria un adjunto SQL seleccionado de Jira; solo acepta texto SQL UTF-8 permitido.',
   inputSchema: {
-    type: 'object', properties: {
+    type: 'object',
+    properties: {
       issueKey: { type: 'string', description: 'Clave del issue (ej. RENTAX-123)' },
-      attachmentId: { type: 'string', description: 'ID explícito del adjunto SQL listado en el issue' },
-    }, required: ['issueKey', 'attachmentId'],
+      attachmentId: {
+        type: 'string',
+        description: 'ID explícito del adjunto SQL listado en el issue',
+      },
+    },
+    required: ['issueKey', 'attachmentId'],
   },
 };
 
 export const COMPARE_SQL_ATTACHMENTS_SCHEMA = {
   name: 'compare_sql_attachments',
-  description: 'Compara en memoria dos adjuntos SQL seleccionados; no prueba equivalencia semántica.',
+  description:
+    'Compara en memoria dos adjuntos SQL seleccionados; no prueba equivalencia semántica.',
   inputSchema: {
-    type: 'object', properties: {
-      firstIssueKey: { type: 'string' }, firstAttachmentId: { type: 'string' },
-      secondIssueKey: { type: 'string' }, secondAttachmentId: { type: 'string' },
-    }, required: ['firstIssueKey', 'firstAttachmentId', 'secondIssueKey', 'secondAttachmentId'],
+    type: 'object',
+    properties: {
+      firstIssueKey: { type: 'string' },
+      firstAttachmentId: { type: 'string' },
+      secondIssueKey: { type: 'string' },
+      secondAttachmentId: { type: 'string' },
+    },
+    required: [
+      'firstIssueKey',
+      'firstAttachmentId',
+      'secondIssueKey',
+      'secondAttachmentId',
+    ],
   },
 };
 
 export const GET_TEAM_WORKLOAD_SUMMARY_SCHEMA = {
   name: 'get_team_workload_summary',
-  description: 'Resume horas Tempo para accountIds explícitos y período, umbrales y zona horaria declarados.',
+  description:
+    'Resume horas Tempo para accountIds explícitos y período, umbrales y zona horaria declarados.',
   inputSchema: {
-    type: 'object', properties: {
+    type: 'object',
+    properties: {
       accountIds: { type: 'array', items: { type: 'string' }, minItems: 1, maxItems: 50 },
-      from: { type: 'string', description: 'Fecha inicial YYYY-MM-DD' }, to: { type: 'string', description: 'Fecha final YYYY-MM-DD' },
-      timezone: { type: 'string', description: 'Zona horaria declarada por quien consulta' },
+      from: { type: 'string', description: 'Fecha inicial YYYY-MM-DD' },
+      to: { type: 'string', description: 'Fecha final YYYY-MM-DD' },
+      timezone: {
+        type: 'string',
+        description: 'Zona horaria declarada por quien consulta',
+      },
       weekStartsOn: { type: 'string', enum: ['monday', 'sunday'] },
-      dailyThresholdHours: { type: 'number', description: 'Umbral diario explícito en horas' },
-      weeklyThresholdHours: { type: 'number', description: 'Umbral semanal explícito en horas' },
-    }, required: ['accountIds', 'from', 'to', 'timezone', 'weekStartsOn', 'dailyThresholdHours', 'weeklyThresholdHours'],
+      dailyThresholdHours: {
+        type: 'number',
+        description: 'Umbral diario explícito en horas',
+      },
+      weeklyThresholdHours: {
+        type: 'number',
+        description: 'Umbral semanal explícito en horas',
+      },
+    },
+    required: [
+      'accountIds',
+      'from',
+      'to',
+      'timezone',
+      'weekStartsOn',
+      'dailyThresholdHours',
+      'weeklyThresholdHours',
+    ],
   },
 };
 

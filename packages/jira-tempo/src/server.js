@@ -90,9 +90,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       throw new Error(`Unknown tool: ${name}`);
     }
 
-    const result = await rateLimitMiddleware.handler(request, () =>
-      handler(args),
-    );
+    const result = await rateLimitMiddleware.handler(request, () => handler(args));
 
     const duration = Date.now() - startTime;
     logger.info('Tool completed', { tool: name, duration, success: true });
