@@ -36,16 +36,12 @@ tempoAxios.interceptors.response.use(
       throw new Error('Tempo rate limit exceeded. Try again later.');
     }
 
-    throw new Error(
-      data?.message || `Tempo request failed (${status})`,
-    );
+    throw new Error(data?.message || `Tempo request failed (${status})`);
   },
 );
 
 export async function tempoGet(url, params = {}) {
-  return limiter.schedule(() =>
-    tempoAxios.get(url, { params }).then((r) => r.data),
-  );
+  return limiter.schedule(() => tempoAxios.get(url, { params }).then((r) => r.data));
 }
 
 export { tempoAxios };

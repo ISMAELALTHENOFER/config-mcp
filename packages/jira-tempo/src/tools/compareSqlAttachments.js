@@ -8,5 +8,28 @@ export async function handleCompareSqlAttachments(args) {
     getSqlAttachment(input.firstIssueKey, input.firstAttachmentId),
     getSqlAttachment(input.secondIssueKey, input.secondAttachmentId),
   ]);
-  return { content: [{ type: 'text', text: JSON.stringify({ primera: { issueKey: first.issueKey, attachmentId: first.attachmentId, filename: first.filename }, segunda: { issueKey: second.issueKey, attachmentId: second.attachmentId, filename: second.filename }, comparacion: compareSql(first.sql, second.sql) }, null, 2) }] };
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify(
+          {
+            primera: {
+              issueKey: first.issueKey,
+              attachmentId: first.attachmentId,
+              filename: first.filename,
+            },
+            segunda: {
+              issueKey: second.issueKey,
+              attachmentId: second.attachmentId,
+              filename: second.filename,
+            },
+            comparacion: compareSql(first.sql, second.sql),
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+  };
 }

@@ -43,9 +43,7 @@ jiraAxios.interceptors.response.use(
 );
 
 export async function jiraGet(url, params = {}) {
-  return limiter.schedule(() =>
-    jiraAxios.get(url, { params }).then((r) => r.data),
-  );
+  return limiter.schedule(() => jiraAxios.get(url, { params }).then((r) => r.data));
 }
 
 export async function jiraGetBytes(url, maxBytes) {
@@ -65,9 +63,7 @@ export async function jiraGetBytes(url, maxBytes) {
 }
 
 export async function jiraPost(url, data = {}) {
-  return limiter.schedule(() =>
-    jiraAxios.post(url, data).then((r) => r.data),
-  );
+  return limiter.schedule(() => jiraAxios.post(url, data).then((r) => r.data));
 }
 
 export { jiraAxios };

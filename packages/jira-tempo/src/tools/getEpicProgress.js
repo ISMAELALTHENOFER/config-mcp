@@ -8,12 +8,9 @@ export async function handleGetEpicProgress(args) {
 
   const epicData = await getEpic(epicKey);
 
-  const completed = epicData.stories.filter(
-    (s) => s.statusCategory === 'done',
-  ).length;
-  const progress = epicData.totalStories > 0
-    ? Math.round((completed / epicData.totalStories) * 100)
-    : 0;
+  const completed = epicData.stories.filter((s) => s.statusCategory === 'done').length;
+  const progress =
+    epicData.totalStories > 0 ? Math.round((completed / epicData.totalStories) * 100) : 0;
 
   let hoursLogged = 0;
   try {
