@@ -41,7 +41,28 @@ describe('gitlabMapper', () => {
         webUrl: 'https://gitlab.example.com/group/project/-/merge_requests/42',
         mergeStatus: 'can_be_merged',
         userNotesCount: 3,
+        sha: 'abc123def456',
+        diffRefs: null,
       });
+    });
+
+    it('maps GitLab-provided MR revisions without inferring missing SHAs', () => {
+      expect(mapMr({
+        ...mrRaw,
+        sha: 'head',
+        diff_refs: { head_sha: 'diff-head', base_sha: 'base', start_sha: 'start' },
+      })).toMatchObject({
+        sha: 'head',
+        diffRefs: { headSha: 'diff-head', baseSha: 'base', startSha: 'start' },
+      });
+      expect(mapMr({ ...mrRaw, diff_refs: {} }).diffRefs).toEqual({
+        headSha: null,
+        baseSha: null,
+        startSha: null,
+      });
+      const withoutSha = { ...mrRaw };
+      delete withoutSha.sha;
+      expect(mapMr(withoutSha).sha).toBeNull();
     });
 
     it('should handle null merge/close dates', () => {
@@ -62,6 +83,8 @@ describe('gitlabMapper', () => {
         renamedFile: false,
         deletedFile: false,
         diff: expect.stringContaining('--- a/src/auth/login.js'),
+        collapsed: null,
+        tooLarge: null,
         additions: 5,
         deletions: 1,
       });
@@ -77,6 +100,8 @@ describe('gitlabMapper', () => {
         renamedFile: false,
         deletedFile: false,
         diff: expect.stringContaining('--- /dev/null'),
+        collapsed: null,
+        tooLarge: null,
         additions: 3,
         deletions: 0,
       });
@@ -92,9 +117,23 @@ describe('gitlabMapper', () => {
         renamedFile: false,
         deletedFile: true,
         diff: expect.stringContaining('--- a/src/legacy/auth_old.js'),
+        collapsed: null,
+        tooLarge: null,
         additions: 0,
         deletions: 15,
       });
+    });
+
+    it('preserves omission flags separately from empty diff text', () => {
+      expect(mapMrDiff({
+        old_path: 'a', new_path: 'a', diff: '', collapsed: true, too_large: false,
+      })).toMatchObject({ diff: '', collapsed: true, tooLarge: false });
+      expect(mapMrDiff({
+        old_path: 'b', new_path: 'b', diff: '', collapsed: false, too_large: true,
+      })).toMatchObject({ diff: '', collapsed: false, tooLarge: true });
+      expect(mapMrDiff({
+        old_path: 'c', new_path: 'c', diff: '', collapsed: false, too_large: false,
+      })).toMatchObject({ diff: '', collapsed: false, tooLarge: false });
     });
   });
 
@@ -298,8 +337,8 @@ describe('gitlabMapper', () => {
       expect(result).toEqual({
         content: fileContentRaw.content,
         fileName: fileContentRaw.filePath,
-        size: 128,
-        encoding: 'base64',
+        size: Buffer.byteLength(fileContentRaw.content),
+        encoding: 'utf-8',
         ref: fileContentRaw.ref,
       });
     });
@@ -312,6 +351,26 @@ describe('gitlabMapper', () => {
       expect(result.size).toBe('file content'.length);
       expect(result.content).toBe('file content');
       expect(result.fileName).toBe('');
+    });
+
+    it('preserves UTF-8 byte size and base64-encodes non-text bytes', () => {
+      const text = Buffer.from('café\n', 'utf8');
+      expect(mapFileContent(text, { headers: { 'content-length': '999' } })).toMatchObject({
+        content: 'café\n',
+        size: text.length,
+        encoding: 'utf-8',
+      });
+      const binary = Buffer.from([0x00, 0xff, 0x80]);
+      expect(mapFileContent(binary, { headers: {} })).toMatchObject({
+        content: binary.toString('base64'),
+        size: binary.length,
+        encoding: 'base64',
+      });
+      expect(mapFileContent(Buffer.alloc(0), { headers: {} })).toMatchObject({
+        content: '',
+        size: 0,
+        encoding: 'utf-8',
+      });
     });
   });
 });

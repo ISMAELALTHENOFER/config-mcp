@@ -56,7 +56,9 @@ jest.unstable_mockModule('@config-mcp/mcp-core', () => {
   };
 });
 
-const { get, getAll } = await import('../../../src/gitlab/gitlabClient.js');
+const { get, getRaw, getAll } = await import(
+  '../../../src/gitlab/gitlabClient.js'
+);
 const { GitlabError } = await import('../../../src/utils/errors.js');
 
 describe('gitlabClient', () => {
@@ -174,6 +176,16 @@ describe('gitlabClient', () => {
     });
   });
 
+  it('requests raw file bytes rather than decoded text', async () => {
+    const bytes = Buffer.from([0xff, 0x00]);
+    mockAxiosInstance.get.mockResolvedValue({ data: bytes, headers: {} });
+    expect((await getRaw('/files/raw', { ref: 'abc' })).data).toBe(bytes);
+    expect(mockAxiosInstance.get).toHaveBeenCalledWith('/files/raw', {
+      params: { ref: 'abc' },
+      responseType: 'arraybuffer',
+    });
+  });
+
   describe('getAll', () => {
     it('should return single page results when only one page exists', async () => {
       const mockData = [{ id: 1 }, { id: 2 }];
@@ -256,6 +268,28 @@ describe('gitlabClient', () => {
 
       expect(mockAxiosInstance.get).toHaveBeenCalledTimes(1);
       expect(result).toEqual([{ id: 1 }]);
+    });
+
+    it('follows next-page headers when total-page counts are unavailable', async () => {
+      mockAxiosInstance.get
+        .mockResolvedValueOnce({
+          data: [{ id: 1 }],
+          headers: { 'x-next-page': '2' },
+        })
+        .mockResolvedValueOnce({
+          data: [{ id: 2 }],
+          headers: { 'x-next-page': '' },
+        });
+
+      expect(await getAll('/projects/1/merge_requests/42/diffs')).toEqual([
+        { id: 1 },
+        { id: 2 },
+      ]);
+      expect(mockAxiosInstance.get).toHaveBeenNthCalledWith(
+        2,
+        '/projects/1/merge_requests/42/diffs',
+        { params: { per_page: 100, page: '2' } },
+      );
     });
   });
 });
