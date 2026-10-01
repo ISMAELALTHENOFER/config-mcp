@@ -265,14 +265,19 @@ export const DOWNLOAD_ATTACHMENT_SCHEMA = {
 export const INSPECT_SQL_ATTACHMENT_SCHEMA = {
   name: 'inspect_sql_attachment',
   description:
-    'Inspecciona en memoria un adjunto SQL seleccionado de Jira; solo acepta texto SQL UTF-8 permitido.',
+    'Inspect a selected Jira SQL or ZIP attachment in memory; returns summaries by default and validated UTF-8 SQL text only when includeSql is true.',
   inputSchema: {
     type: 'object',
     properties: {
-      issueKey: { type: 'string', description: 'Clave del issue (ej. RENTAX-123)' },
+      issueKey: { type: 'string', description: 'Issue key (e.g. RENTAX-123)' },
       attachmentId: {
         type: 'string',
-        description: 'ID explícito del adjunto SQL listado en el issue',
+        description: 'ID of the selected attachment listed on the issue',
+      },
+      includeSql: {
+        type: 'boolean',
+        description: 'Return validated SQL text for every entry when true (default: false)',
+        default: false,
       },
     },
     required: ['issueKey', 'attachmentId'],

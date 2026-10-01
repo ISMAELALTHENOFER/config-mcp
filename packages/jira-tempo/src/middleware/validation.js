@@ -38,7 +38,7 @@ export const schemas = {
     accountId: z.string().min(1),
   }),
   attachment: attachmentSchema,
-  sqlAttachment: attachmentSchema,
+  sqlAttachment: attachmentSchema.extend({ includeSql: z.boolean().default(false) }),
   sqlAttachmentComparison: z.object({
     firstIssueKey: z.string().regex(issueKeyRegex, 'Invalid issue key format'),
     firstAttachmentId: z.string().min(1).max(100),
