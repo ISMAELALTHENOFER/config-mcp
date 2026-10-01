@@ -2,7 +2,7 @@
  * Map a raw GitLab MR API response to a clean MR object.
  *
  * @param {object} raw - Raw MR response from /projects/{id}/merge_requests/{mr_iid}
- * @returns {{ id, iid, title, description, state, author, sourceBranch, targetBranch, createdAt, updatedAt, mergedAt, closedAt, webUrl, mergeStatus, userNotesCount }}
+ * @returns {{ id, iid, title, description, state, author, sourceBranch, targetBranch, createdAt, updatedAt, mergedAt, closedAt, webUrl, mergeStatus, userNotesCount, sha, diffRefs }}
  */
 export function mapMr(raw) {
   return {
@@ -23,6 +23,14 @@ export function mapMr(raw) {
     webUrl: raw.web_url,
     mergeStatus: raw.merge_status,
     userNotesCount: raw.user_notes_count,
+    sha: raw.sha ?? null,
+    diffRefs: raw.diff_refs
+      ? {
+          headSha: raw.diff_refs.head_sha ?? null,
+          baseSha: raw.diff_refs.base_sha ?? null,
+          startSha: raw.diff_refs.start_sha ?? null,
+        }
+      : null,
   };
 }
 
@@ -30,7 +38,7 @@ export function mapMr(raw) {
  * Map a raw diff entry to a clean diff object.
  *
  * @param {object} raw - Diff entry from /projects/{id}/merge_requests/{mr_iid}/diffs
- * @returns {{ oldPath, newPath, newFile, renamedFile, deletedFile, diff, additions, deletions }}
+ * @returns {{ oldPath, newPath, newFile, renamedFile, deletedFile, diff, collapsed, tooLarge, additions, deletions }}
  */
 export function mapMrDiff(raw) {
   return {
@@ -40,6 +48,8 @@ export function mapMrDiff(raw) {
     renamedFile: raw.renamed_file,
     deletedFile: raw.deleted_file,
     diff: raw.diff,
+    collapsed: raw.collapsed ?? null,
+    tooLarge: raw.too_large ?? null,
     additions: raw.additions,
     deletions: raw.deletions,
   };
@@ -186,17 +196,25 @@ export function mapBranch(raw) {
  * @returns {{ content, fileName, size, encoding, ref }}
  */
 export function mapFileContent(raw, response) {
-  const size =
-    parseInt(response.headers['content-length'] || '0', 10) ||
-    (typeof raw === 'string' ? raw.length : 0);
+  const bytes = Buffer.isBuffer(raw) ? raw : Buffer.from(raw);
+  let content;
+  let encoding;
+  try {
+    content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    if (content.includes('\0')) throw new TypeError('Binary content');
+    encoding = 'utf-8';
+  } catch {
+    content = bytes.toString('base64');
+    encoding = 'base64';
+  }
 
   return {
-    content: raw,
+    content,
     fileName: response.config?.url
       ? extractFileNameFromUrl(response.config.url)
       : '',
-    size,
-    encoding: 'base64',
+    size: bytes.length,
+    encoding,
     ref: response.config?.params?.ref || '',
   };
 }

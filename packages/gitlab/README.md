@@ -53,6 +53,8 @@ Obtiene información detallada de un merge request. Acepta identificación por U
 | `projectId` | `string` | No | ID del proyecto o path encoded (ej: `"group/project"` o `"42"`) |
 | `mrIid` | `number` | No | IID del merge request |
 
+The response includes `sha` and `diffRefs` (`headSha`, `baseSha`, `startSha`) when GitLab supplies them. Missing revision fields are `null`; `sha` is not substituted for a missing diff reference. Pin file reads to an explicit commit SHA for reproducible comparisons.
+
 **Ejemplo:**
 ```
 Mostrame el MR 42 del proyecto group/project
@@ -69,6 +71,8 @@ Obtiene los cambios de archivos (diff) de un merge request.
 |---|---|---|---|
 | `projectId` | `string` | Sí | ID del proyecto o path encoded |
 | `mrIid` | `number` | Sí | IID del merge request |
+
+Results include all pages returned by GitLab. Each entry preserves `collapsed` and `tooLarge`: `true` means diff text was omitted; `null` means the server did not report that flag (for example, on older versions). Empty `diff` alone does not establish that files are equivalent.
 
 **Ejemplo:**
 ```
@@ -191,6 +195,8 @@ Obtiene el contenido de un archivo del repositorio en una rama, tag o commit esp
 | `projectId` | `string` | Sí | ID del proyecto o path encoded |
 | `filePath` | `string` | Sí | Ruta al archivo dentro del repositorio |
 | `ref` | `string` | No | Rama, tag o commit SHA (default: rama por defecto) |
+
+The response uses `encoding: "utf-8"` for valid UTF-8 without NUL bytes and `encoding: "base64"` otherwise. `size` is the byte count received, not the number of characters. A branch or tag `ref` can move; use a commit SHA to pin a read. This file response does not establish equivalence with an MR diff or another file.
 
 **Ejemplo:**
 ```
