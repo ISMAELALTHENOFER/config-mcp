@@ -1,0 +1,34 @@
+[
+  {
+    "id": 7001,
+    "user": { "id": 100, "login": "janedoe" },
+    "state": "CHANGES_REQUESTED",
+    "body": "Needs tests",
+    "submitted_at": "2025-06-04T09:00:00Z",
+    "commit_id": "abc123def456"
+  },
+  {
+    "id": 7002,
+    "user": { "id": 101, "login": "johnsmith" },
+    "state": "APPROVED",
+    "body": "",
+    "submitted_at": "2025-06-05T09:00:00Z",
+    "commit_id": "abc123def456"
+  },
+  {
+    "id": 7003,
+    "user": { "id": 100, "login": "janedoe" },
+    "state": "APPROVED",
+    "body": "Thanks",
+    "submitted_at": "2025-06-06T09:00:00Z",
+    "commit_id": "abc123def456"
+  },
+  {
+    "id": 7004,
+    "user": { "id": 102, "login": "alicew" },
+    "state": "COMMENTED",
+    "body": "Question",
+    "submitted_at": "2025-06-06T10:00:00Z",
+    "commit_id": "abc123def456"
+  }
+]

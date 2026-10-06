@@ -1,0 +1,12 @@
+{
+  "id": 6789,
+  "name": "project",
+  "full_name": "octo/project",
+  "description": "Main application repository",
+  "private": false,
+  "visibility": "public",
+  "archived": false,
+  "default_branch": "main",
+  "html_url": "https://github.com/octo/project",
+  "owner": { "login": "octo", "id": 1, "avatar_url": "https://avatars.githubusercontent.com/u/1" }
+}
