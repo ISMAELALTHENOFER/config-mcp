@@ -31,7 +31,9 @@ Tasks (each closes with a Conventional Commit):
   - Evidence GREEN: `Test Suites: 20 passed, 20 total; Tests: 156 passed, 156 total`; coverage 95.62% stmts / 92.51% branches / 97.14% funcs.
   - `node --check src/server.js` (from packages/github): OK (exit 0).
   - `npm run lint` (root): clean, no findings. `npx prettier --write` applied to packages/github src+tests.
-- [ ] T3: Docs and wiring: packages/github/README, docs/github-spec.md, root README, .env.example, openspec context. Route: delegated (same writer). Commit: pending.
+- [x] T3: Docs and wiring: packages/github/README, docs/github-spec.md, root README, .env.example, openspec context. Route: delegated (same writer). Commit: `docs(github): document github mcp server` (hash recorded in a later docs commit).
+  - Evidence: docs-only task, so no RED. After the edits: jest `Test Suites: 20 passed; Tests: 156 passed`, `node --check src/server.js` OK, `npx prettier --check "src/**/*.js"` clean, `npm run lint` (root) clean.
+  - Not done (out of listed scope): `.github/workflows/ci.yml` matrix still lists only jira-tempo, gitlab, oracle-db; adding `github` (and `GITHUB_TOKEN` test env) is left to the user.
 
 Verification: pending.
 
