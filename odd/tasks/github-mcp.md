@@ -26,17 +26,19 @@ Tasks (each closes with a Conventional Commit):
   - Evidence GREEN: same command after implementation: Test Suites 9 passed, Tests 97 passed. With `--coverage`: all files 94.17% stmts / 91.86% branches / 96.61% funcs (threshold 90 met).
   - Evidence lint/format: `npm run lint` (root) clean after fixing one eqeqeq finding; `npx prettier --write` applied to packages/github src+tests.
   - `node --check src/server.js`: not applicable yet (server.js lands in T2).
-- [x] T2: Tools, schemas and server wiring: 9 tools, toolSchemas, server.js + per-tool tests and server test. Route: delegated (same writer). Commit: `feat(github): add read-only tools and server wiring` (hash recorded in a later docs commit).
+- [x] T2: Tools, schemas and server wiring: 9 tools, toolSchemas, server.js + per-tool tests and server test. Route: delegated (same writer). Commit: `feat(github): add read-only tools and server wiring` Commit hash: 40a78e2.
   - Evidence RED: same jest command with only tests present: 11 suites failed (9 tool suites, server, toolSchemas), 9 core suites passed.
   - Evidence GREEN: `Test Suites: 20 passed, 20 total; Tests: 156 passed, 156 total`; coverage 95.62% stmts / 92.51% branches / 97.14% funcs.
   - `node --check src/server.js` (from packages/github): OK (exit 0).
   - `npm run lint` (root): clean, no findings. `npx prettier --write` applied to packages/github src+tests.
-- [x] T3: Docs and wiring: packages/github/README, docs/github-spec.md, root README, .env.example, openspec context. Route: delegated (same writer). Commit: `docs(github): document github mcp server` (hash recorded in a later docs commit).
+- [x] T3: Docs and wiring: packages/github/README, docs/github-spec.md, root README, .env.example, openspec context. Route: delegated (same writer). Commit: `docs(github): document github mcp server` Commit hash: a53d033.
   - Evidence: docs-only task, so no RED. After the edits: jest `Test Suites: 20 passed; Tests: 156 passed`, `node --check src/server.js` OK, `npx prettier --check "src/**/*.js"` clean, `npm run lint` (root) clean.
   - Not done (out of listed scope): `.github/workflows/ci.yml` matrix still lists only jira-tempo, gitlab, oracle-db; adding `github` (and `GITHUB_TOKEN` test env) is left to the user.
 
-Verification: pending.
+Verification (final, after T3): `cd packages/github && node --experimental-vm-modules node_modules/jest/bin/jest.js --forceExit --detectOpenHandles` -> 20 suites, 156 tests passed; `node --check src/server.js` -> OK; `npm run lint` (root) -> clean; `npx prettier --check "src/**/*.js"` -> clean. No live GitHub calls were made (mocks and fixtures only). Authored changed lines vs `developer` (additions + deletions, excluding this document and packages/github/package-lock.json): 4476 (T1 2352, T2 1279, T3 845), above the ~400 planning heuristic because tests and fixtures dominate; all slices are still one coherent behavior each.
 
-Progress: Branch created, document created. No source written yet.
+Deviations from the GitLab mirror (intentional): `get_pull_request_files` returns `{ files, truncated }` (GitHub's 3000-file cap) instead of a bare array; users are `{ id, login }` (no display name in list payloads); `get_pull_request_reviews` has no required-approval counts (not in REST) and adds `changesRequestedBy`; comments merge conversation and inline review threads with `resolved: null`; branch search and `merged`/`labels` PR filters are client-side; `list_branches` has no `merged`/`default`/commit message fields; pagination follows Link `rel="next"` sequentially (page number only); extra env `GITHUB_API_URL` with default for GitHub Enterprise.
 
-Next step: T1.
+Progress: T1, T2, T3 done and committed on `feat/github-mcp` (41617b2, 40a78e2, a53d033). RDD not assessed. Nothing pushed.
+
+Next step: parent decides RDD assessment/review, CI matrix update for `github`, and slice PRs (feature-branch-chain).
