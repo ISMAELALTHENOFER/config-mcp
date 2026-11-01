@@ -6,25 +6,21 @@
       "user": "${ORACLE_USER}",
       "password": "${ORACLE_PASSWORD}",
       "connectString": "${ORACLE_CONNECT_STRING}",
-      "write": false,
-      "allowDdl": false
+      "permissions": ["select"]
     },
     "test": {
       "label": "Test",
       "user": "${ORACLE_TEST_USER}",
       "password": "${ORACLE_TEST_PASSWORD}",
       "connectString": "${ORACLE_TEST_CONNECT_STRING}",
-      "write": false,
-      "allowDdl": false
+      "permissions": ["select"]
     },
     "dgrm29": {
       "label": "DGRM .29",
       "user": "${ORACLE_29_USER}",
       "password": "${ORACLE_29_PASSWORD}",
       "connectString": "${ORACLE_29_CONNECT_STRING}",
-      "schema": "",
-      "write": false,
-      "allowDdl": false
+      "permissions": ["select"]
     }
   }
 }

@@ -67,7 +67,7 @@ Queries pull requests, repositories and files on GitHub (github.com or GitHub En
 
 ### `oracle-db`
 
-Un solo servidor para varias bases Oracle. Las conexiones con nombre se definen en `packages/oracle-db/connections.json` (no versionado; plantilla en `connections.example.json`), cada una con su propio permiso: solo lectura (por defecto), `write` (DML) o `allowDdl` (DML + DDL). Los bloques PL/SQL nunca se ejecutan. Todas las herramientas aceptan el parámetro opcional `connection`. Ver [`packages/oracle-db/README.md`](./packages/oracle-db/README.md).
+Un solo servidor para varias bases Oracle. Las conexiones con nombre se definen en `packages/oracle-db/connections.json` (no versionado; plantilla en `connections.example.json`), cada una con sus propios permisos por tipo de sentencia (`permissions`: `select`, `insert`, `update`, `delete`, `merge`, `ddl`; por defecto solo `select`). Los bloques PL/SQL nunca se ejecutan. Todas las herramientas aceptan el parámetro opcional `connection`. Ver [`packages/oracle-db/README.md`](./packages/oracle-db/README.md).
 
 | Herramienta | Función |
 |---|---|
@@ -93,7 +93,7 @@ El package `jira-tempo` también incluye un dashboard web auxiliar (`npm run sta
 - npm, incluido con Node.js.
 - Credenciales y conectividad con el servicio que se quiera consultar.
 - Oracle Instant Client para `oracle-db`.
-- En Oracle, usuarios con los privilegios mínimos de cada conexión (solo lectura salvo que la conexión tenga `write`).
+- En Oracle, usuarios con los privilegios mínimos de cada conexión (solo lectura salvo que la conexión tenga más `permissions`).
 
 ## Instalación reproducible
 

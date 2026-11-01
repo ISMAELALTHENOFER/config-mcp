@@ -15,7 +15,7 @@ writeConfig({
   defaultConnection: 'test',
   connections: {
     dev: { user: 'u', password: 'p', connectString: 'h/s' },
-    test: { user: 'u', password: 'p', connectString: 'h/s', write: true },
+    test: { user: 'u', password: 'p', connectString: 'h/s', permissions: ['update'] },
   },
 });
 
@@ -62,27 +62,33 @@ describe('oracle-db connections config', () => {
       password: 'secret',
       connectString: 'host:1521/svc',
       schema: 'SIAT',
-      write: false,
-      allowDdl: false,
+      permissions: ['select'],
     });
-    expect(permissionMode(connections.a)).toBe('read');
+    expect(permissionMode(connections.a)).toBe('select');
   });
 
-  it('maps permission flags: write is DML, allowDdl implies write', () => {
+  it('reads per-statement permissions, always including select', () => {
     writeConfig({
       connections: {
-        rw: { user: 'u', password: 'p', connectString: 'h/s', write: true },
-        ddl: { user: 'u', password: 'p', connectString: 'h/s', allowDdl: true },
-        truthy: { user: 'u', password: 'p', connectString: 'h/s', write: 'true' },
+        upd: {
+          user: 'u',
+          password: 'p',
+          connectString: 'h/s',
+          permissions: ['select', 'update'],
+        },
+        mixed: {
+          user: 'u',
+          password: 'p',
+          connectString: 'h/s',
+          permissions: ['DDL', 'delete', 'insert'],
+        },
       },
     });
 
     const { connections } = loadConnections(configPath, {});
 
-    expect(permissionMode(connections.rw)).toBe('read+dml');
-    expect(permissionMode(connections.ddl)).toBe('read+dml+ddl');
-    expect(connections.ddl.write).toBe(true);
-    expect(permissionMode(connections.truthy)).toBe('read');
+    expect(connections.upd.permissions).toEqual(['select', 'update']);
+    expect(permissionMode(connections.mixed)).toBe('select, insert, delete, ddl');
   });
 
   it.each([
@@ -110,6 +116,30 @@ describe('oracle-db connections config', () => {
       },
       'invalid schema',
     ],
+    [
+      {
+        connections: {
+          a: { user: 'u', password: 'p', connectString: 'h/s', permissions: ['plsql'] },
+        },
+      },
+      'invalid permissions plsql',
+    ],
+    [
+      {
+        connections: {
+          a: { user: 'u', password: 'p', connectString: 'h/s', permissions: 'update' },
+        },
+      },
+      'must be an array',
+    ],
+    [
+      {
+        connections: {
+          a: { user: 'u', password: 'p', connectString: 'h/s', write: true },
+        },
+      },
+      'use "permissions"',
+    ],
   ])('rejects invalid configuration %#', (content, message) => {
     writeConfig(content);
 
@@ -127,7 +157,7 @@ describe('oracle-db connections config', () => {
     expect(connections.default).toMatchObject({
       user: 'user',
       connectString: 'host:1521/svc',
-      write: false,
+      permissions: ['select'],
     });
   });
 

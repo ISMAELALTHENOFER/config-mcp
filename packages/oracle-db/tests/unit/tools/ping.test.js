@@ -7,13 +7,12 @@ const config = {
   connectString: 'host:1521/svc',
   user: 'reader',
   schema: '',
-  write: false,
-  allowDdl: false,
+  permissions: ['select', 'update'],
 };
 
 jest.unstable_mockModule('../../../src/utils/db.js', () => mockDb);
 jest.unstable_mockModule('../../../src/config/connections.js', () => ({
-  permissionMode: (c) => (c.allowDdl ? 'read+dml+ddl' : c.write ? 'read+dml' : 'read'),
+  permissionMode: (c) => c.permissions.join(', '),
 }));
 
 const { handlePing } = await import('../../../src/tools/ping.js');
@@ -36,7 +35,7 @@ describe('oracle-db ping tool', () => {
       version: 'Oracle Database 19c Enterprise Edition',
       connectString: 'host:1521/svc',
       esquema: 'READER',
-      permisos: 'read',
+      permisos: 'select, update',
     });
     expect(mockWithConnection.mock.calls.at(-1)[0]).toBe('test');
   });

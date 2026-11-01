@@ -54,7 +54,7 @@ export const ALL_TOOLS = [
   {
     name: 'execute',
     description:
-      'Ejecuta INSERT/UPDATE/DELETE/MERGE (conexiones con write) o DDL (conexiones con allowDdl), con commit automático. Nunca ejecuta bloques PL/SQL.',
+      'Ejecuta una sentencia INSERT, UPDATE, DELETE, MERGE o DDL solo si la conexión la permite (ver permisos en "connection"), con commit automático. Nunca ejecuta bloques PL/SQL.',
     inputSchema: {
       type: 'object',
       properties: {

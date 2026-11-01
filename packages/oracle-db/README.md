@@ -30,8 +30,14 @@ npm start
       "password": "${ORACLE_PASSWORD}",
       "connectString": "${ORACLE_CONNECT_STRING}",
       "schema": "",
-      "write": false,
-      "allowDdl": false
+      "permissions": ["select"]
+    },
+    "test": {
+      "label": "Test",
+      "user": "${ORACLE_TEST_USER}",
+      "password": "${ORACLE_TEST_PASSWORD}",
+      "connectString": "${ORACLE_TEST_CONNECT_STRING}",
+      "permissions": ["select", "update"]
     }
   }
 }
@@ -42,16 +48,20 @@ npm start
 | `label` | el nombre | Descripción mostrada por `list_connections`. |
 | `user`, `password`, `connectString` | — | Obligatorios. Admiten `${VARIABLE}`; si la variable no existe el servidor no arranca. |
 | `schema` | usuario de la sesión | Esquema de trabajo (`ALTER SESSION SET CURRENT_SCHEMA`). Debe ser un identificador simple. |
-| `write` | `false` | Habilita `execute` para `INSERT`/`UPDATE`/`DELETE`/`MERGE`. |
-| `allowDdl` | `false` | Habilita además DDL (`CREATE`/`ALTER`/`DROP`/`TRUNCATE`/`GRANT`…). Implica `write`. |
+| `permissions` | `["select"]` | Tipos de sentencia permitidos. Valores: `select`, `insert`, `update`, `delete`, `merge`, `ddl`. `select` siempre está incluido. Un valor desconocido impide arrancar el servidor. |
 
-| `write` | `allowDdl` | Permite |
-|---|---|---|
-| `false` | `false` | Solo lectura (`query`, `list_tables`, `describe_table`). |
-| `true` | `false` | Lectura + DML. |
-| cualquiera | `true` | Lectura + DML + DDL. |
+Ejemplos de `permissions`:
 
-**Los bloques PL/SQL (`BEGIN`, `DECLARE`, `CALL`, `EXEC`) nunca se ejecutan**, sin importar los permisos. El código PL/SQL se puede leer con `query` (por ejemplo, `SELECT TEXT FROM ALL_SOURCE WHERE NAME = 'MI_PKG' ORDER BY LINE`).
+| Valor | Permite |
+|---|---|
+| `["select"]` | Solo lectura (`query`, `list_tables`, `describe_table`). |
+| `["select", "update"]` | Lectura + `UPDATE` vía `execute`; `INSERT`, `DELETE`, `MERGE` y DDL se rechazan. |
+| `["select", "insert", "update", "delete"]` | Lectura + DML sin `MERGE` ni DDL. |
+| `["select", "insert", "update", "delete", "merge", "ddl"]` | Todo salvo PL/SQL. |
+
+`MERGE` necesita su propio permiso `merge` aunque la conexión tenga `insert` y `update`. `ddl` agrupa `CREATE`, `ALTER`, `DROP`, `TRUNCATE`, `RENAME`, `COMMENT`, `GRANT` y `REVOKE`.
+
+**Los bloques PL/SQL (`BEGIN`, `DECLARE`, `CALL`, `EXEC` y funciones inline `WITH FUNCTION`/`PROCEDURE`) nunca se ejecutan**, sin importar los permisos. El código PL/SQL se puede leer con `query` (por ejemplo, `SELECT TEXT FROM ALL_SOURCE WHERE NAME = 'MI_PKG' ORDER BY LINE`).
 
 `defaultConnection` es la conexión usada cuando una tool no recibe `connection`; si se omite, es la primera definida. `ORACLE_MCP_CONFIG` permite apuntar a otro archivo.
 
@@ -68,11 +78,11 @@ Todas aceptan el parámetro opcional `connection` (salvo `list_connections`).
 | `list_connections` | Lista conexiones, esquema, permisos y cuál es la default. |
 | `ping` | Verifica la conexión; devuelve versión, esquema y permisos. |
 | `query` | `SELECT`/`WITH` de solo lectura con `binds` y `limit` (default 100, max 1000). Rechaza DML, DDL, `FOR UPDATE` y múltiples sentencias. |
-| `execute` | Una sentencia DML o DDL según los permisos de la conexión, con commit automático. `dry_run: true` valida sin ejecutar. |
+| `execute` | Una sentencia `INSERT`/`UPDATE`/`DELETE`/`MERGE`/DDL, solo si su tipo figura en `permissions`, con commit automático. `dry_run: true` valida sin ejecutar. |
 | `list_tables` | Tablas del esquema de la conexión, con filtro `LIKE` opcional (`filter`). |
 | `describe_table` | Columnas de `table_name`; `schema` opcional (default: el de la conexión). |
 
-Respuesta de `execute`: `{ "conexion": "dev", "tipo_sentencia": "dml", "filas_afectadas": 1 }`.
+Respuesta de `execute`: `{ "conexion": "test", "tipo_sentencia": "update", "filas_afectadas": 1 }`.
 
 ## Registro en clientes
 
@@ -102,8 +112,8 @@ Para agentes que deben ser de solo lectura, deshabilitar `oracle-db_execute` en 
 
 ## Seguridad
 
-- Escritura cerrada por defecto; DDL requiere un segundo opt-in.
-- La clasificación de sentencias ignora comentarios y rechaza lo no reconocido.
+- Escritura cerrada por defecto; cada tipo de sentencia se habilita explícitamente por conexión.
+- La clasificación de sentencias ignora comentarios y el contenido de literales e identificadores entre comillas, rechaza múltiples sentencias, literales sin cerrar y todo lo no reconocido.
 - Limitación: una función invocada desde un `SELECT` puede tener efectos secundarios en la base (por ejemplo, con `PRAGMA AUTONOMOUS_TRANSACTION`). La protección real es usar en cada conexión un usuario Oracle con solo los privilegios necesarios.
 
 ## Scripts

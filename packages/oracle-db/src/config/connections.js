@@ -16,9 +16,32 @@ function expandEnv(value, source) {
   });
 }
 
+// Statement types a connection may allow. PL/SQL execution is never allowed.
+export const PERMISSIONS = ['select', 'insert', 'update', 'delete', 'merge', 'ddl'];
+
+function parsePermissions(name, raw) {
+  if ('write' in raw || 'allowDdl' in raw) {
+    throw new Error(
+      `Connection "${name}": "write"/"allowDdl" are not supported; use "permissions", e.g. ["select", "update"]`,
+    );
+  }
+  const requested = raw.permissions ?? ['select'];
+  if (!Array.isArray(requested)) {
+    throw new Error(`Connection "${name}": "permissions" must be an array`);
+  }
+  const values = requested.map((value) => String(value).toLowerCase());
+  const invalid = values.filter((value) => !PERMISSIONS.includes(value));
+  if (invalid.length > 0) {
+    throw new Error(
+      `Connection "${name}": invalid permissions ${invalid.join(', ')}. Allowed: ${PERMISSIONS.join(', ')}`,
+    );
+  }
+  // select is always allowed so every connection can be inspected.
+  return PERMISSIONS.filter((value) => value === 'select' || values.includes(value));
+}
+
 export function normalizeConnection(name, raw, source = process.env) {
   const schema = (expandEnv(raw.schema, source) || '').toUpperCase();
-  const allowDdl = raw.allowDdl === true;
   const connection = {
     name,
     label: expandEnv(raw.label, source) || name,
@@ -26,9 +49,7 @@ export function normalizeConnection(name, raw, source = process.env) {
     password: expandEnv(raw.password, source),
     connectString: expandEnv(raw.connectString, source),
     schema,
-    // allowDdl implies write; PL/SQL execution is never allowed.
-    write: raw.write === true || allowDdl,
-    allowDdl,
+    permissions: parsePermissions(name, raw),
   };
 
   for (const field of ['user', 'password', 'connectString']) {
@@ -110,6 +131,5 @@ export function getConnectionConfig(name) {
 }
 
 export function permissionMode(connection) {
-  if (connection.allowDdl) return 'read+dml+ddl';
-  return connection.write ? 'read+dml' : 'read';
+  return connection.permissions.join(', ');
 }
