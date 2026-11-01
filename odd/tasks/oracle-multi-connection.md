@@ -26,3 +26,5 @@ Branch: `feat/oracle-multi-connection`. Delivery: ask-on-risk. Test runner: Jest
 - L5 (2026-11-01): "conecte la vpn verifica que opencode y claude code queden funcionando correctamnte. acordate que para cada conexion la idea es poder setear los permisos . solo select o select update etc"
 - L6: Independent verifier blocker: a `'--'` literal hid a `WITH_PLSQL` inline function inside DML from the classifier (also affected `query`, pre-existing there). Fixed in T3.
 - L7: With VPN, ping/query/list_tables succeed on dev (.40), test (.65) and dgrm29 (.29) using both the Claude Code and the OpenCode env; permission dry-runs behave per spec. `opencode mcp list` still fails with the pre-existing "no such column: project_id".
+- L8: Verifier recheck: blocker fixed. Same-class variant found (lone CR ended `--` comments in Oracle but not in the new scanner); fixed in `362c364` with RED (old: insert/accepted) → GREEN (plsql/rejected). 54 tests green. Commits: T1 `bc701e9`, T3 `52c9c7d` + `362c364`.
+- L9: Native review (risk high) offered; user chose "Omitir esta vez" → declined for this candidate. Delivery (push/PR) pending the user's decision.
