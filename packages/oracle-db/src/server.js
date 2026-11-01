@@ -4,7 +4,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { env } from './config/env.js';
+import { CONNECTIONS, DEFAULT_CONNECTION } from './config/connections.js';
 import { logger } from './utils/logger.js';
 import { ALL_TOOLS } from './schemas/toolSchemas.js';
 
@@ -12,10 +12,14 @@ import { handlePing } from './tools/ping.js';
 import { handleQuery } from './tools/query.js';
 import { handleListTables } from './tools/listTables.js';
 import { handleDescribeTable } from './tools/describeTable.js';
+import { handleListConnections } from './tools/listConnections.js';
+import { handleExecute } from './tools/execute.js';
 
 const TOOL_HANDLERS = {
+  list_connections: handleListConnections,
   ping: handlePing,
   query: handleQuery,
+  execute: handleExecute,
   list_tables: handleListTables,
   describe_table: handleDescribeTable,
 };
@@ -23,7 +27,7 @@ const TOOL_HANDLERS = {
 const server = new Server(
   {
     name: 'oracle-db',
-    version: '1.0.0',
+    version: '2.0.0',
   },
   {
     capabilities: {
@@ -88,8 +92,8 @@ async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
     logger.info('Oracle DB Server running', {
-      connectString: env.ORACLE_CONNECT_STRING,
-      level: env.MCP_LOG_LEVEL,
+      connections: Object.keys(CONNECTIONS),
+      defaultConnection: DEFAULT_CONNECTION,
     });
   } catch (error) {
     logger.error('Failed to start server', { error: error.message });

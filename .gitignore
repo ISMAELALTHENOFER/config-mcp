@@ -21,3 +21,6 @@ Thumbs.db
 .codegraph/
 .atl/.skill-registry.cache.json
 .atl/skill-registry.md
+
+# Oracle MCP local connections (may contain hosts)
+packages/oracle-db/connections.json

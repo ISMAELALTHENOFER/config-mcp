@@ -1,33 +1,54 @@
 import oracledb from 'oracledb';
-import { env } from '../config/env.js';
+import { getConnectionConfig } from '../config/connections.js';
 
-// Usar objetos en lugar de arrays en los resultados
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
 export const OUT_FORMAT_OBJECT = oracledb.OUT_FORMAT_OBJECT;
 
-let pool = null;
+const pools = new Map();
 
-async function getPool() {
-  if (!pool) {
-    pool = await oracledb.createPool({
-      user: env.ORACLE_USER,
-      password: env.ORACLE_PASSWORD,
-      connectString: env.ORACLE_CONNECT_STRING,
-      poolMin: 1,
-      poolMax: 5,
-      poolIncrement: 1,
-    });
+async function getPool(config) {
+  if (!pools.has(config.name)) {
+    pools.set(
+      config.name,
+      oracledb.createPool({
+        user: config.user,
+        password: config.password,
+        connectString: config.connectString,
+        poolMin: 1,
+        poolMax: 5,
+        poolIncrement: 1,
+        // Position every session in the working schema so tables need no prefix.
+        sessionCallback: async (connection, _requestedTag, callback) => {
+          try {
+            if (config.schema) {
+              await connection.execute(
+                `ALTER SESSION SET CURRENT_SCHEMA = ${config.schema}`,
+              );
+            }
+            callback();
+          } catch (error) {
+            callback(error);
+          }
+        },
+      }),
+    );
   }
-  return pool;
+  try {
+    return await pools.get(config.name);
+  } catch (error) {
+    pools.delete(config.name); // let the next call retry a failed pool creation
+    throw error;
+  }
 }
 
-export async function withConnection(fn) {
-  const p = await getPool();
-  const conn = await p.getConnection();
+export async function withConnection(connectionName, fn) {
+  const config = getConnectionConfig(connectionName);
+  const pool = await getPool(config);
+  const connection = await pool.getConnection();
   try {
-    return await fn(conn);
+    return await fn(connection, config);
   } finally {
-    await conn.close();
+    await connection.close();
   }
 }
