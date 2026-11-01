@@ -9,8 +9,8 @@ function normalize(sql) {
   while (i < sql.length) {
     const char = sql[i];
     if (sql.startsWith('--', i)) {
-      const end = sql.indexOf('\n', i);
-      i = end === -1 ? sql.length : end;
+      const end = sql.slice(i).search(/[\r\n]/);
+      i = end === -1 ? sql.length : i + end;
       out += ' ';
     } else if (sql.startsWith('/*', i)) {
       const end = sql.indexOf('*/', i + 2);

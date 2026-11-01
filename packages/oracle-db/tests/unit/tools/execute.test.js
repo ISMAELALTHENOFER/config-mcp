@@ -96,6 +96,7 @@ describe('oracle-db execute tool', () => {
   it.each([
     'SELECT * FROM t',
     'UPDATE t SET a = 1; DROP TABLE t',
+    "INSERT /*+ WITH_PLSQL */ INTO t --\rWITH FUNCTION f RETURN NUMBER IS BEGIN EXECUTE IMMEDIATE 'DROP TABLE x'; RETURN 1; END; SELECT f FROM dual",
     "UPDATE t SET a = '--'; DROP TABLE t",
     'LOCK TABLE t IN EXCLUSIVE MODE',
     "UPDATE t SET a = 'unterminated",

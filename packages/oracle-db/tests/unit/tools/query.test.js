@@ -55,6 +55,7 @@ describe('oracle-db query tool', () => {
     "WITH FUNCTION f RETURN NUMBER IS s VARCHAR2(9) := '--'; PRAGMA AUTONOMOUS_TRANSACTION; BEGIN EXECUTE IMMEDIATE 'DROP TABLE x'; RETURN 1; END; SELECT f FROM dual",
     "SELECT 'x' FROM dual WHERE 1 = 1 -- '\n; DELETE FROM users",
     "SELECT 'unterminated FROM dual",
+    'SELECT 1 FROM dual --\r; DELETE FROM users',
   ])('rejects non-read-only SQL: %s', async (sql) => {
     const result = await handleQuery({ sql });
 
