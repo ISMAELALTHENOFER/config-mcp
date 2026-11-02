@@ -66,9 +66,9 @@ describe('gitlabService', () => {
   });
 
   describe('getMrDiffs', () => {
-    it('should call client.get and map each diff', async () => {
+    it('should call client.getAll and map each diff', async () => {
       const mappedDiffs = [{ oldPath: 'file.js', diff: '...' }];
-      mockClient.get.mockResolvedValue(mrDiffsRaw);
+      mockClient.getAll.mockResolvedValue(mrDiffsRaw);
       mapper.mapMrDiff
         .mockReturnValueOnce(mappedDiffs[0])
         .mockReturnValueOnce({ oldPath: 'new.js' })
@@ -76,15 +76,16 @@ describe('gitlabService', () => {
 
       const result = await service.getMrDiffs('group/project', 42);
 
-      expect(mockClient.get).toHaveBeenCalledWith(
+      expect(mockClient.getAll).toHaveBeenCalledWith(
         `/projects/${ENCODED_PATH}/merge_requests/42/diffs`,
       );
+      expect(mockClient.get).not.toHaveBeenCalled();
       expect(mapper.mapMrDiff).toHaveBeenCalledTimes(3);
       expect(result).toHaveLength(3);
     });
 
     it('should return empty array when there are no diffs', async () => {
-      mockClient.get.mockResolvedValue([]);
+      mockClient.getAll.mockResolvedValue([]);
 
       const result = await service.getMrDiffs('group/project', 42);
 

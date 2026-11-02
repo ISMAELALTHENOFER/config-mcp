@@ -46,7 +46,7 @@ export async function getMr(projectPath, mrIid) {
  */
 export async function getMrDiffs(projectPath, mrIid) {
   try {
-    const data = await get(
+    const data = await getAll(
       `${buildProjectApiPath(projectPath)}/merge_requests/${mrIid}/diffs`,
     );
     return data.map(mapMrDiff);

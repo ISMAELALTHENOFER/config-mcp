@@ -14,7 +14,7 @@ describe('tools/getFileContent', () => {
   });
 
   it('should call gitlabService.getFileContent with projectId, filePath, and ref', async () => {
-    const mockFile = { content: 'const x = 1;', fileName: 'src/index.js', size: 12, encoding: 'base64', ref: 'main' };
+    const mockFile = { content: 'const x = 1;', fileName: 'src/index.js', size: 12, encoding: 'utf-8', ref: 'main' };
     mockGitlabService.getFileContent.mockResolvedValue(mockFile);
 
     const result = await handleGetFileContent({

@@ -35,6 +35,16 @@ describe('tools/getMrDiffs', () => {
     expect(result.content[0].text).toContain('[]');
   });
 
+  it('includes omitted-diff flags in the MCP response', async () => {
+    mockGitlabService.getMrDiffs.mockResolvedValue([
+      { diff: '', collapsed: true, tooLarge: false },
+    ]);
+    const result = await handleGetMrDiffs({ projectId: 'group/project', mrIid: 42 });
+    expect(JSON.parse(result.content[0].text)).toEqual([
+      { diff: '', collapsed: true, tooLarge: false },
+    ]);
+  });
+
   it('should reject missing projectId', async () => {
     await expect(handleGetMrDiffs({ mrIid: 42 })).rejects.toThrow();
   });

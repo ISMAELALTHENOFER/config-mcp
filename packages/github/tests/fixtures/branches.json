@@ -1,0 +1,5 @@
+[
+  { "name": "main", "commit": { "sha": "abc123def456", "url": "https://api.github.com/repos/octo/project/commits/abc123def456" }, "protected": true },
+  { "name": "hotfix/login", "commit": { "sha": "bbb222", "url": "https://api.github.com/repos/octo/project/commits/bbb222" }, "protected": false },
+  { "name": "feature/auth", "commit": { "sha": "abc123def456", "url": "https://api.github.com/repos/octo/project/commits/abc123def456" }, "protected": false }
+]

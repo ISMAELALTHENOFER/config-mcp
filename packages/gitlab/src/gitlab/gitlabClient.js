@@ -82,7 +82,7 @@ export async function get(path, params = {}) {
  */
 export async function getRaw(path, params = {}) {
   return limiter.schedule(() =>
-    gitlabAxios.get(path, { params }),
+    gitlabAxios.get(path, { params, responseType: 'arraybuffer' }),
   );
 }
 
@@ -129,6 +129,18 @@ export async function getAll(path, params = {}) {
     const remainingResponses = await Promise.all(pagePromises);
     for (const response of remainingResponses) {
       results.push(...response.data);
+    }
+  } else if (!firstResponse.headers['x-total-pages']) {
+    // Some GitLab responses omit total-page counts but include the next-page cursor.
+    let nextPage = firstResponse.headers['x-next-page'];
+    while (nextPage) {
+      const response = await limiter.schedule(() =>
+        gitlabAxios.get(path, {
+          params: { ...params, per_page: perPage, page: nextPage },
+        }),
+      );
+      results.push(...response.data);
+      nextPage = response.headers['x-next-page'];
     }
   }
 

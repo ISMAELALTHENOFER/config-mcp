@@ -1,6 +1,6 @@
 # config-mcp
 
-Monorepo de servidores [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) para consultar Jira, Tempo, GitLab y Oracle desde clientes compatibles. Los servidores se ejecutan como procesos Node.js independientes mediante transporte **stdio**; no exponen por sí mismos un endpoint HTTP MCP.
+Monorepo de servidores [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) para consultar Jira, Tempo, GitLab, GitHub y Oracle desde clientes compatibles. Los servidores se ejecutan como procesos Node.js independientes mediante transporte **stdio**; no exponen por sí mismos un endpoint HTTP MCP.
 
 Todos los servidores son de solo lectura. Validan sus argumentos antes de consultar los sistemas externos y cargan las variables desde el `.env` ubicado en la raíz del repositorio.
 
@@ -49,22 +49,36 @@ Consulta merge requests, proyectos y repositorios de GitLab. Requiere `GITLAB_BA
 | `list_branches` | Lista ramas con búsqueda opcional. |
 | `get_file_content` | Obtiene el contenido de un archivo en una rama, tag o commit. |
 
+### `github`
+
+Queries pull requests, repositories and files on GitHub (github.com or GitHub Enterprise Server). Requires `GITHUB_TOKEN` with read access; `GITHUB_API_URL` is optional.
+
+| Tool | Function |
+|---|---|
+| `get_pull_request` | Gets a pull request by URL, or by repository and number. |
+| `get_pull_request_files` | Gets the files and patches changed by a pull request. |
+| `get_pull_request_comments` | Gets its conversation comments and inline review threads. |
+| `get_pull_request_reviews` | Gets its reviews and approval state. |
+| `get_pull_request_checks` | Gets the CI check runs of its head commit. |
+| `list_pull_requests` | Lists pull requests with optional filters. |
+| `get_repository` | Gets the details of a repository. |
+| `list_branches` | Lists branches with optional name search. |
+| `get_file_content` | Gets the content of a file at a branch, tag or commit. |
+
 ### `oracle-db`
 
-Consulta una base de datos Oracle con permisos de lectura. Requiere `ORACLE_USER`, `ORACLE_PASSWORD`, `ORACLE_CONNECT_STRING` y Oracle Instant Client.
+Un solo servidor para varias bases Oracle. Las conexiones con nombre se definen en `packages/oracle-db/connections.json` (no versionado; plantilla en `connections.example.json`), cada una con sus propios permisos por tipo de sentencia (`permissions`: `select`, `insert`, `update`, `delete`, `merge`, `ddl`; por defecto solo `select`). Los bloques PL/SQL nunca se ejecutan. Todas las herramientas aceptan el parámetro opcional `connection`. Ver [`packages/oracle-db/README.md`](./packages/oracle-db/README.md).
 
 | Herramienta | Función |
 |---|---|
+| `list_connections` | Lista las conexiones configuradas, su esquema y sus permisos. |
 | `ping` | Verifica la conexión y devuelve la versión del servidor. |
 | `query` | Ejecuta consultas `SELECT` o `WITH`, con bind parameters y límite de filas. |
+| `execute` | Ejecuta DML o DDL según los permisos de la conexión; admite `dry_run`. |
 | `list_tables` | Lista las tablas accesibles, con filtro opcional. |
 | `describe_table` | Describe columnas, tipos, longitud, nulabilidad y valores por defecto. |
 
 `query` devuelve como máximo 100 filas por defecto y admite hasta 1000. No permite DML, DDL ni `FOR UPDATE`.
-
-### `oracle-db-test`
-
-Tiene las mismas cuatro herramientas que `oracle-db`, pero usa las variables `ORACLE_TEST_USER`, `ORACLE_TEST_PASSWORD` y `ORACLE_TEST_CONNECT_STRING` para una base Oracle de pruebas.
 
 ### Paquetes auxiliares
 
@@ -78,8 +92,8 @@ El package `jira-tempo` también incluye un dashboard web auxiliar (`npm run sta
 - Node.js 22 o superior.
 - npm, incluido con Node.js.
 - Credenciales y conectividad con el servicio que se quiera consultar.
-- Oracle Instant Client para `oracle-db` y `oracle-db-test`.
-- En Oracle, un usuario con permisos de solo lectura.
+- Oracle Instant Client para `oracle-db`.
+- En Oracle, usuarios con los privilegios mínimos de cada conexión (solo lectura salvo que la conexión tenga más `permissions`).
 
 ## Instalación reproducible
 
@@ -109,11 +123,11 @@ Editar `.env` con las credenciales necesarias. Después instalar exactamente las
 ```bash
 npm ci --prefix packages/jira-tempo
 npm ci --prefix packages/gitlab
+npm ci --prefix packages/github
 npm ci --prefix packages/oracle-db
-npm ci --prefix packages/oracle-db-test
 ```
 
-No es necesario ejecutar los cuatro comandos si solo se usará un servidor. El `package.json` raíz no declara workspaces; cada package mantiene su propio `package-lock.json`.
+No es necesario ejecutar todos los comandos si solo se usará un servidor. El `package.json` raíz no declara workspaces; cada package mantiene su propio `package-lock.json`.
 
 ## Configuración de `.env`
 
@@ -128,14 +142,12 @@ Todas las variables se definen en el único archivo `.env` de la raíz. Cada ser
 | `TEMPO_API_TOKEN` | `jira-tempo` | Sí | API token de Tempo. |
 | `GITLAB_BASE_URL` | `gitlab` | Sí | URL base de GitLab. |
 | `GITLAB_PERSONAL_ACCESS_TOKEN` | `gitlab` | Sí | Token personal con alcance `read_api`. |
-| `ORACLE_USER` | `oracle-db` | Sí | Usuario de Oracle. |
-| `ORACLE_PASSWORD` | `oracle-db` | Sí | Contraseña de Oracle. |
-| `ORACLE_CONNECT_STRING` | `oracle-db` | Sí | `host:puerto/servicio` o formato equivalente aceptado por Oracle. |
-| `ORACLE_TEST_USER` | `oracle-db-test` | Sí | Usuario de Oracle de pruebas. |
-| `ORACLE_TEST_PASSWORD` | `oracle-db-test` | Sí | Contraseña de Oracle de pruebas. |
-| `ORACLE_TEST_CONNECT_STRING` | `oracle-db-test` | Sí | Cadena de conexión de Oracle de pruebas. |
+| `GITHUB_TOKEN` | `github` | Sí | GitHub token with read access to repositories and pull requests. |
+| `GITHUB_API_URL` | `github` | No | API base URL; defaults to `https://api.github.com`. For GitHub Enterprise Server use `https://<host>/api/v3`. |
+| `ORACLE_*` | `oracle-db` | Según `connections.json` | Credenciales referenciadas con `${VARIABLE}` desde `connections.json`. Sin ese archivo, `ORACLE_USER`, `ORACLE_PASSWORD` y `ORACLE_CONNECT_STRING` definen una única conexión `default` de solo lectura. |
+| `ORACLE_MCP_CONFIG` | `oracle-db` | No | Ruta alternativa al archivo de conexiones. |
 | `MCP_LOG_LEVEL` | Todos | No | `error`, `warn`, `info` o `debug`; por defecto `info`. |
-| `MCP_PORT` | `jira-tempo`, `gitlab` | No | Valor numérico usado en el mensaje de inicio; el transporte MCP sigue siendo stdio. Por defecto `3000`. |
+| `MCP_PORT` | `jira-tempo`, `gitlab`, `github` | No | Valor numérico usado en el mensaje de inicio; el transporte MCP sigue siendo stdio. Por defecto `3000`. |
 
 El archivo `.env` contiene secretos y no debe incluirse en Git ni en configuraciones compartidas.
 
@@ -146,11 +158,9 @@ Ejecutar las pruebas del servidor instalado:
 ```bash
 npm test --prefix packages/jira-tempo
 npm test --prefix packages/gitlab
-npm test --prefix packages/oracle-db-test
+npm test --prefix packages/github
+npm test --prefix packages/oracle-db
 ```
-
-`oracle-db` no tiene actualmente una suite de pruebas automatizadas; comprueba
-la conexión con `ping` desde el cliente MCP.
 
 Para validar el código JavaScript y el formato de cada package:
 
@@ -159,10 +169,10 @@ npm run lint --prefix packages/jira-tempo
 npm run format:check --prefix packages/jira-tempo
 npm run lint --prefix packages/gitlab
 npm run format:check --prefix packages/gitlab
+npm run lint --prefix packages/github
+npm run format:check --prefix packages/github
 npm run lint --prefix packages/oracle-db
 npm run format:check --prefix packages/oracle-db
-npm run lint --prefix packages/oracle-db-test
-npm run format:check --prefix packages/oracle-db-test
 ```
 
 El package raíz solo contiene la configuración común de ESLint y Prettier; no
@@ -175,7 +185,7 @@ Para iniciar un servidor manualmente:
 npm start --prefix packages/jira-tempo
 ```
 
-Sustituir `jira-tempo` por `gitlab`, `oracle-db` u `oracle-db-test` según corresponda. Un servidor MCP por stdio queda ejecutándose y espera mensajes del cliente; no debe probarse abriendo `http://localhost:3000`. La herramienta `ping` de los servidores Oracle permite comprobar la conexión a la base de datos desde el cliente MCP.
+Sustituir `jira-tempo` por `gitlab`, `github` u `oracle-db` según corresponda. Un servidor MCP por stdio queda ejecutándose y espera mensajes del cliente; no debe probarse abriendo `http://localhost:3000`. La herramienta `ping` de los servidores Oracle permite comprobar la conexión a la base de datos desde el cliente MCP.
 
 ## Configuración MCP para el equipo
 
@@ -217,13 +227,13 @@ En la sección `mcp` de `opencode.json`:
       "enabled": true,
       "type": "local"
     },
-    "oracle-db": {
-      "command": ["node", "<ruta-absoluta>/packages/oracle-db/src/server.js"],
+    "github": {
+      "command": ["node", "<ruta-absoluta>/packages/github/src/server.js"],
       "enabled": true,
       "type": "local"
     },
-    "oracle-db-test": {
-      "command": ["node", "<ruta-absoluta>/packages/oracle-db-test/src/server.js"],
+    "oracle-db": {
+      "command": ["node", "<ruta-absoluta>/packages/oracle-db/src/server.js"],
       "enabled": true,
       "type": "local"
     }
@@ -246,13 +256,13 @@ Estos clientes usan el formato `mcpServers` documentado en los READMEs de los pa
       "command": "node",
       "args": ["<ruta-absoluta>/packages/gitlab/src/server.js"]
     },
+    "github": {
+      "command": "node",
+      "args": ["<ruta-absoluta>/packages/github/src/server.js"]
+    },
     "oracle-db": {
       "command": "node",
       "args": ["<ruta-absoluta>/packages/oracle-db/src/server.js"]
-    },
-    "oracle-db-test": {
-      "command": "node",
-      "args": ["<ruta-absoluta>/packages/oracle-db-test/src/server.js"]
     }
   }
 }
@@ -268,21 +278,22 @@ Cada servidor mantiene estos scripts, salvo indicación contraria:
 |---|---|
 | `npm start` | Inicia el servidor MCP. |
 | `npm run dev` | Inicia el servidor con `node --watch`. |
-| `npm test` | Ejecuta las pruebas Jest. En `oracle-db-test` también comprueba que no haya tests enfocados. |
+| `npm test` | Ejecuta las pruebas Jest. En `oracle-db` también comprueba que no haya tests enfocados. |
 | `npm run lint` | Ejecuta ESLint sobre `src/`. |
 | `npm run format:check` | Comprueba el formato con Prettier. |
 | `npm run format` | Formatea los archivos JavaScript. |
 
-`jira-tempo` y `gitlab` también definen `npm run test:coverage`; `jira-tempo` define además `npm run start:web` y `npm run dev:web` para su dashboard auxiliar.
+`jira-tempo`, `gitlab` y `github` también definen `npm run test:coverage`; `jira-tempo` define además `npm run start:web` y `npm run dev:web` para su dashboard auxiliar.
 
 ## Documentación relacionada
 
 - [`packages/jira-tempo/README.md`](./packages/jira-tempo/README.md)
 - [`packages/gitlab/README.md`](./packages/gitlab/README.md)
+- [`packages/github/README.md`](./packages/github/README.md)
 - [`packages/oracle-db/README.md`](./packages/oracle-db/README.md)
-- [`packages/oracle-db-test/README.md`](./packages/oracle-db-test/README.md)
 - [`docs/jira-tempo-spec.md`](./docs/jira-tempo-spec.md)
 - [`docs/gitlab-spec.md`](./docs/gitlab-spec.md)
+- [`docs/github-spec.md`](./docs/github-spec.md)
 
 ## Principios operativos
 
@@ -290,4 +301,4 @@ Cada servidor mantiene estos scripts, salvo indicación contraria:
 - **Transporte stdio:** cada servidor se inicia como proceso local para el cliente MCP.
 - **Validación:** los argumentos se validan antes de realizar llamadas externas o consultas.
 - **Protección de secretos:** las credenciales se cargan desde `.env` y los logs redactan información sensible cuando corresponde.
-- **Rate limiting:** Jira/Tempo y GitLab aplican control de cuota a las llamadas externas.
+- **Rate limiting:** Jira/Tempo, GitLab y GitHub aplican control de cuota a las llamadas externas.

@@ -6,14 +6,14 @@ import { dirname, resolve } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Cargar .env desde la raíz del monorepo
+// Load .env from the monorepo root; variables passed by the MCP client win.
 dotenv.config({ path: resolve(__dirname, '../../../../.env') });
 
 const envSchema = z.object({
-  ORACLE_USER: z.string().min(1),
-  ORACLE_PASSWORD: z.string().min(1),
-  ORACLE_CONNECT_STRING: z.string().min(1),
-
+  ORACLE_MCP_CONFIG: z
+    .string()
+    .min(1)
+    .default(resolve(__dirname, '../../connections.json')),
   MCP_LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
 });
 

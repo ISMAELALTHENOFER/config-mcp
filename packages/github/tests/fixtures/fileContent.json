@@ -1,0 +1,5 @@
+{
+  "filePath": "src/index.js",
+  "ref": "main",
+  "content": "export const answer = 42;\nconsole.log('café');\n"
+}
