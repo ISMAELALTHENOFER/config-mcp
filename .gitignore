@@ -24,3 +24,7 @@ Thumbs.db
 
 # Oracle MCP local connections (may contain hosts)
 packages/oracle-db/connections.json
+
+# Agent planning artifacts
+odd/
+openspec/
